@@ -1,0 +1,240 @@
+/* ============================================================
+   Back Bar — Design Tokens
+   tokens.css
+
+   Edit this file to re-skin the entire app.
+   Every colour value lives here; no component CSS needs touching.
+
+   HOW TO SWITCH SCHEME
+   ─────────────────────────────────────────────────────────
+   Each scheme below is a complete LIGHT + DARK pair.
+   To activate one:
+     1. Comment out the current active :root block
+     2. Comment out the current active [data-theme="dark"] block
+     3. Uncomment the matching pair from the alternatives below
+
+   STRUCTURE
+   ─────────────────────────────────────────────────────────
+   ACTIVE SCHEME  —  the two uncommented blocks below
+   ALTERNATIVES   —  five complete pairs, commented out
+   TYPOGRAPHY     —  font stacks (same for all schemes)
+   MOTION         —  easing curve (same for all schemes)
+   ============================================================ */
+
+
+/* ============================================================
+   ACTIVE SCHEME — 1. Sage & Parchment (default)
+   Mood: established neighbourhood bar, well-worn leather,
+         bartender's notebook. Warm, earthy, professional.
+   ============================================================ */
+
+:root {
+  --bg:           #F4EFE6;   /* warm parchment                 */
+  --surface:      #FBF8F2;   /* cards, panels, topbar          */
+  --surface-alt:  #ECE5D8;   /* insets, wells, input fills     */
+  --border:       #DAD2C2;   /* default border                 */
+  --border-s:     #C5BBA9;   /* stronger border / separators   */
+  --text:         #26282B;   /* primary body text              */
+  --muted:        #6B6F6C;   /* secondary / captions           */
+  --accent:       #2E5E5B;   /* sage-teal — CTAs, active states*/
+  --accent-m:     #9DB0A0;   /* muted / chip accent            */
+  --accent-soft:  rgba(46,94,91,.10);
+  --success:      #4E7C59;
+  --warning:      #C28A3A;
+  --danger:       #B4543E;
+}
+
+[data-theme="dark"] {
+  --bg:           #1B1D1F;
+  --surface:      #26282B;
+  --surface-alt:  #2F3236;
+  --border:       #3A3E42;
+  --border-s:     #4A5055;
+  --text:         #F4EFE6;
+  --muted:        #A7ADA6;
+  --accent:       #9DB0A0;
+  --accent-m:     #3F6E6A;
+  --accent-soft:  rgba(157,176,160,.12);
+  --success:      #7FA988;
+  --warning:      #D7A85C;
+  --danger:       #D2785F;
+}
+
+
+/* ============================================================
+   TYPOGRAPHY — unchanged across all schemes
+   ============================================================ */
+:root {
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans:  'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* ============================================================
+   MOTION — unchanged across all schemes
+   ============================================================ */
+:root {
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+
+/* ============================================================
+   ALTERNATIVE SCHEMES — uncomment a pair to activate
+   ============================================================ */
+
+/* ────────────────────────────────────────────────────────────
+   2. Midnight Navy & Burnished Gold
+   Mood: private members' club, whisky lounge. Deep and serious
+         with warm gold. The kind of bar that knows your order.
+   ──────────────────────────────────────────────────────────── */
+/*
+:root {
+  --bg:           #EDF0F6;
+  --surface:      #F6F8FC;
+  --surface-alt:  #E2E6F0;
+  --border:       #C8CEDD;
+  --border-s:     #B0B8CE;
+  --text:         #18213A;
+  --muted:        #5A6480;
+  --accent:       #1E3878;
+  --accent-m:     #7B8DC6;
+  --accent-soft:  rgba(30,56,120,.10);
+  --success:      #2E7055;
+  --warning:      #9A6A15;
+  --danger:       #882E2E;
+}
+
+[data-theme="dark"] {
+  --bg:           #090C18;
+  --surface:      #101628;
+  --surface-alt:  #182038;
+  --border:       #24304E;
+  --border-s:     #344468;
+  --text:         #EDE8D8;
+  --muted:        #7880A0;
+  --accent:       #C9A84C;
+  --accent-m:     #7A6030;
+  --accent-soft:  rgba(201,168,76,.12);
+  --success:      #52A870;
+  --warning:      #C9A84C;
+  --danger:       #C85050;
+}
+*/
+
+/* ────────────────────────────────────────────────────────────
+   3. Espresso & Caramel
+   Mood: Italian bar, aperitivo culture. Three in the afternoon,
+         Campari on the marble counter. Warm, never gaudy.
+   ──────────────────────────────────────────────────────────── */
+/*
+:root {
+  --bg:           #F7F1EA;
+  --surface:      #FEFCF8;
+  --surface-alt:  #EFE5D8;
+  --border:       #DDD0C0;
+  --border-s:     #C8BAA5;
+  --text:         #261A10;
+  --muted:        #7A6350;
+  --accent:       #6B3E22;
+  --accent-m:     #C0907A;
+  --accent-soft:  rgba(107,62,34,.10);
+  --success:      #476E3E;
+  --warning:      #C08828;
+  --danger:       #B03830;
+}
+
+[data-theme="dark"] {
+  --bg:           #151210;
+  --surface:      #211A14;
+  --surface-alt:  #2C2218;
+  --border:       #403028;
+  --border-s:     #564030;
+  --text:         #F8F0E6;
+  --muted:        #A08878;
+  --accent:       #D09660;
+  --accent-m:     #7A5038;
+  --accent-soft:  rgba(208,150,96,.12);
+  --success:      #72A860;
+  --warning:      #D0A048;
+  --danger:       #CC6858;
+}
+*/
+
+/* ────────────────────────────────────────────────────────────
+   4. Ink & Copper
+   Mood: speakeasy, behind a door, down some stairs. Industrial
+         warmth — polished copper fittings under Edison bulbs.
+         One perfect drink, no menu.
+   ──────────────────────────────────────────────────────────── */
+/*
+:root {
+  --bg:           #F3F0EE;
+  --surface:      #FDFCFB;
+  --surface-alt:  #EAE6E0;
+  --border:       #D6CECA;
+  --border-s:     #C0B8B0;
+  --text:         #1A1816;
+  --muted:        #786E66;
+  --accent:       #784A28;
+  --accent-m:     #C09880;
+  --accent-soft:  rgba(120,74,40,.10);
+  --success:      #4A7848;
+  --warning:      #BF8818;
+  --danger:       #A83828;
+}
+
+[data-theme="dark"] {
+  --bg:           #0E0C0A;
+  --surface:      #181614;
+  --surface-alt:  #232018;
+  --border:       #302C28;
+  --border-s:     #443E38;
+  --text:         #F3EDE8;
+  --muted:        #988880;
+  --accent:       #CC7838;
+  --accent-m:     #784826;
+  --accent-soft:  rgba(204,120,56,.12);
+  --success:      #68A870;
+  --warning:      #C89838;
+  --danger:       #C05848;
+}
+*/
+
+/* ────────────────────────────────────────────────────────────
+   5. Botanical
+   Mood: garden-to-glass, herb-forward menus, natural wine.
+         Seasonal, living, green. The menu changes with what's
+         in season; garnishes grow out the back.
+   ──────────────────────────────────────────────────────────── */
+/*
+:root {
+  --bg:           #F1F5EE;
+  --surface:      #FAFCF8;
+  --surface-alt:  #E5EDE0;
+  --border:       #C6D4C0;
+  --border-s:     #AEBEA8;
+  --text:         #1A2618;
+  --muted:        #567060;
+  --accent:       #1E5E30;
+  --accent-m:     #7AAA88;
+  --accent-soft:  rgba(30,94,48,.10);
+  --success:      #1E7A38;
+  --warning:      #B48A22;
+  --danger:       #9E3828;
+}
+
+[data-theme="dark"] {
+  --bg:           #0C1610;
+  --surface:      #141E16;
+  --surface-alt:  #1A2A1C;
+  --border:       #263C28;
+  --border-s:     #364E38;
+  --text:         #EDF4EA;
+  --muted:        #88A890;
+  --accent:       #5CC878;
+  --accent-m:     #2C6038;
+  --accent-soft:  rgba(92,200,120,.12);
+  --success:      #70D888;
+  --warning:      #C8A040;
+  --danger:       #C85848;
+}
+*/

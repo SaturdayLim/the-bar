@@ -1,0 +1,11 @@
+# Dev artefacts — not part of the deployed app
+flavour-studio/
+.handover/
+Edits.md
+flavorgraph/
+.claude/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
