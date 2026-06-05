@@ -1,1606 +1,267 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
-<meta id="theme-color-meta" name="theme-color" content="#1B1D1F" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="The Bar" />
-<title>The Bar — Cocktail recipes &amp; service</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<!-- Design tokens (colours, fonts, motion) — edit tokens.css to re-theme -->
-<link rel="stylesheet" href="tokens.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bar-Lab — Cocktail &amp; Flavour Tools</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
 <style>
+/* ════════════════════════════════════════════════════════
+   ZENITH-X DESIGN TOKENS
+   Source: design.md — dark-mode-first, Inter + JetBrains Mono
+   ════════════════════════════════════════════════════════ */
+:root{
+  --primary:   #F4FF2B;   /* brand accent — CTAs, highlights      */
+  --bg:        #0F191E;   /* page background                       */
+  --surface:   #E2F1F2;   /* card surfaces                         */
+  --text:      #FFFFFF;   /* primary text on dark                  */
+  --muted:     #A1A1AA;   /* secondary / metadata                  */
+  --border:    #27272A;   /* dividers, card outlines               */
+  --secondary: #0F191E;   /* dark text on light cards              */
+
+  --radius-card:    16px;
+  --radius-control:  8px;
+  --radius-pill:  9999px;
+
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
 /* ── Reset ─────────────────────────────────────────────── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;
-  -webkit-font-smoothing:antialiased;display:flex;justify-content:center;transition:background .25s,color .25s}
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{
+  background:var(--bg); color:var(--text);
+  font-family:var(--sans); font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
 
-/* ── App shell ─────────────────────────────────────────── */
-.app{width:100%;max-width:480px;min-height:100dvh;background:var(--bg);display:flex;
-  flex-direction:column;position:relative;overflow:hidden;
-  border-left:1px solid var(--border);border-right:1px solid var(--border)}
+/* ── Layout ────────────────────────────────────────────── */
+.wrap{ max-width:960px; margin:0 auto; padding:0 28px; }
 
-/* ── Topbar ────────────────────────────────────────────── */
-.topbar{flex:0 0 auto;padding:calc(env(safe-area-inset-top)+18px) 20px 13px;
-  border-bottom:1px solid var(--border);background:var(--surface);
-  display:flex;align-items:flex-end;justify-content:space-between}
-.brand{font-family:var(--serif);font-weight:600;font-size:23px;letter-spacing:.3px;line-height:1}
-.brand .dot{color:var(--accent)}
-.brand-sub{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-top:5px}
-.topbar-right{display:flex;gap:10px;align-items:center}
+/* ── Header ────────────────────────────────────────────── */
+header{ padding:80px 0 56px; }
+.project-label{
+  font-family:var(--mono); font-size:11px; font-weight:500;
+  letter-spacing:.22em; text-transform:uppercase;
+  color:var(--primary); display:block; margin-bottom:16px;
+}
+.hub-title{
+  font-size:clamp(40px,9vw,76px); font-weight:700;
+  line-height:1.05; letter-spacing:-.02em;
+  color:var(--text); margin-bottom:16px;
+}
+.hub-title span{ color:var(--primary); }
+.hub-sub{
+  font-size:16px; color:var(--muted);
+  max-width:46ch; line-height:1.65;
+}
 
-/* Unit toggle pill */
-.unit-toggle{font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.06em;
-  padding:0 11px;height:30px;border-radius:8px;border:1px solid var(--border);
-  background:var(--surface-alt);color:var(--accent);cursor:pointer;transition:.2s var(--ease)}
-.unit-toggle:active{transform:scale(.93)}
+/* ── Door grid ─────────────────────────────────────────── */
+.door-grid{
+  display:grid; grid-template-columns:1fr;
+  gap:16px; margin-bottom:80px;
+}
+@media(min-width:620px){ .door-grid{ grid-template-columns:1fr 1fr; } }
 
-/* Moon/Sun theme flick toggle */
-.theme-flick{width:50px;height:28px;border-radius:14px;border:1px solid var(--border);
-  background:var(--surface-alt);cursor:pointer;position:relative;
-  transition:background .28s var(--ease),border-color .28s;padding:0}
-[data-theme="dark"] .theme-flick{background:var(--accent-m);border-color:var(--accent-m)}
-.theme-flick .knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
-  background:var(--bg);display:flex;align-items:center;justify-content:center;
-  transition:transform .28s var(--ease),background .28s;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-[data-theme="dark"] .theme-flick .knob{transform:translateX(22px)}
-.theme-flick .knob svg{width:12px;height:12px;stroke:var(--accent);fill:none;stroke-width:2;flex:0 0 auto}
+/* Door = full-card link */
+.door{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-card); padding:24px;
+  display:flex; flex-direction:column; gap:16px;
+  text-decoration:none; color:var(--secondary);
+  transition:transform 200ms ease-out;
+  position:relative; overflow:hidden;
+}
+.door:hover{ transform:translateY(-3px); }
+.door:focus-visible{ outline:2px solid var(--primary); outline-offset:4px; }
 
-/* ── Main / views ──────────────────────────────────────── */
-.main{flex:1;position:relative;overflow:hidden}
-.view{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:18px 20px calc(76px + env(safe-area-inset-bottom));
-  opacity:0;transform:translateY(8px);
-  transition:opacity .3s var(--ease),transform .3s var(--ease);pointer-events:none}
-.view.active{opacity:1;transform:none;pointer-events:auto}
-#detail{transform:translateX(30px)}#detail.active{transform:none}
+/* ── Door internals ────────────────────────────────────── */
+.door-tag{
+  font-family:var(--mono); font-size:10px; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase;
+  background:var(--border); color:#A1A1AA;
+  border-radius:var(--radius-pill); padding:3px 10px;
+  display:inline-block; width:fit-content;
+}
+.door-tag.live{
+  background:var(--primary); color:var(--secondary);
+}
+.door-head{
+  display:flex; justify-content:space-between;
+  align-items:flex-start; gap:12px;
+}
+.door-name{
+  font-size:28px; font-weight:700; line-height:1.1;
+  letter-spacing:-.01em; color:var(--secondary);
+}
+.door-glyph{ color:var(--secondary); opacity:.3; flex:0 0 auto; }
+.door-desc{
+  font-size:14px; line-height:1.65;
+  color:#3a4a50; flex:1;
+}
+.door-chips{
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+.chip{
+  font-family:var(--mono); font-size:10px; font-weight:500;
+  letter-spacing:.08em; text-transform:uppercase;
+  background:rgba(15,25,30,.08); color:#2a3a40;
+  border-radius:var(--radius-pill); padding:3px 10px;
+}
+.door-cta{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:13px; font-weight:600;
+  color:var(--secondary); background:var(--primary);
+  border-radius:var(--radius-control); padding:8px 20px;
+  transition:transform 150ms ease-out;
+  width:fit-content; margin-top:auto;
+}
+.door:hover .door-cta{ transform:translateY(-1px); }
 
-/* ── Search & chips ────────────────────────────────────── */
-.search{position:relative;margin-bottom:12px}
-.search input{width:100%;height:44px;border-radius:12px;border:1px solid var(--border);
-  background:var(--surface);color:var(--text);font-family:var(--sans);font-size:15px;
-  padding:0 16px 0 42px;outline:none;transition:.2s}
-.search input::placeholder{color:var(--muted)}
-.search input:focus{border-color:var(--accent)}
-.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);
-  width:18px;height:18px;stroke:var(--muted);fill:none}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:0 0 4px;
-  margin:0 -20px;padding-left:20px;padding-right:20px;scrollbar-width:none}
-.chips::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;border:1px solid var(--border);background:transparent;color:var(--muted);
-  font-family:var(--sans);font-size:13px;padding:6px 13px;border-radius:999px;
-  cursor:pointer;transition:.2s var(--ease);white-space:nowrap}
-.chip.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:500}
-.chip:active{transform:scale(.95)}
+/* ── Info strip ────────────────────────────────────────── */
+.info-strip{
+  padding-top:56px; border-top:1px solid var(--border);
+  display:grid; grid-template-columns:1fr;
+  gap:16px; margin-bottom:80px;
+}
+@media(min-width:720px){ .info-strip{ grid-template-columns:repeat(3,1fr); } }
 
-/* Flavour chips (secondary row) */
-.fchips{display:flex;gap:7px;overflow-x:auto;padding:8px 0 12px;
-  margin:0 -20px;padding-left:20px;padding-right:20px;scrollbar-width:none}
-.fchips::-webkit-scrollbar{display:none}
-.fchip{flex:0 0 auto;border:1px solid var(--border);background:transparent;color:var(--muted);
-  font-family:var(--sans);font-size:12px;padding:5px 11px;border-radius:999px;
-  cursor:pointer;transition:.2s var(--ease);white-space:nowrap;letter-spacing:.01em}
-.fchip.on{background:var(--accent-soft);border-color:var(--accent-m);color:var(--accent);font-weight:500}
+.info-card{
+  padding:24px;
+  background:rgba(255,255,255,.025);
+  border:1px solid var(--border);
+  border-radius:var(--radius-card);
+}
+.info-lbl{
+  font-family:var(--mono); font-size:10px; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--primary); display:block; margin-bottom:12px;
+}
+.info-body{
+  font-size:13.5px; color:var(--muted); line-height:1.65;
+}
+.info-body strong{ color:var(--text); font-weight:600; }
+.info-body em{ font-style:italic; }
 
-/* Group-by selector */
-.view-opts{display:flex;align-items:center;gap:7px;margin-bottom:14px;flex-wrap:wrap}
-.view-opts .lbl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);flex:0 0 auto}
-.grp-btn{border:1px solid var(--border);background:transparent;color:var(--muted);
-  font-family:var(--sans);font-size:12px;padding:5px 12px;border-radius:8px;
-  cursor:pointer;transition:.2s var(--ease);white-space:nowrap}
-.grp-btn.on{background:var(--surface-alt);border-color:var(--border-s);color:var(--text);font-weight:500}
-
-/* Group header */
-.grp-head{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);
-  margin:20px 0 10px;padding-top:4px}
-.grp-head:first-child{margin-top:0}
-
-/* ── Recipe cards ───────────────────────────────────────── */
-.count{font-size:12px;color:var(--muted);margin:0 2px 12px}
-.card{position:relative;display:block;width:100%;text-align:left;cursor:pointer;
-  background:var(--surface);border:1px solid var(--border);border-radius:16px;
-  padding:16px 18px 15px;margin-bottom:10px;color:var(--text);
-  transition:.22s var(--ease);overflow:hidden}
-.card:active{transform:scale(.986);background:var(--surface-alt)}
-.card .ab{position:absolute;left:0;top:12px;bottom:12px;width:3px;
-  border-radius:0 3px 3px 0;background:var(--accent)}
-.card h3{font-family:var(--serif);font-weight:500;font-size:20px;line-height:1.15;padding-left:8px}
-.card .meta{display:flex;align-items:center;gap:8px;margin-top:6px;padding-left:8px;color:var(--muted);font-size:12.5px}
-.card .meta b{color:var(--accent);font-weight:500}
-.card .ftags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding-left:8px}
-.card .ftag{font-size:11px;padding:2px 8px;border-radius:5px;
-  background:var(--accent-soft);color:var(--accent);letter-spacing:.02em}
-.sep{width:3px;height:3px;border-radius:50%;background:var(--border-s);flex:0 0 auto}
-.empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px}
-
-/* ── Detail view ───────────────────────────────────────── */
-.back{display:inline-flex;align-items:center;gap:7px;background:none;border:none;
-  color:var(--muted);font-family:var(--sans);font-size:14px;cursor:pointer;padding:4px 0;margin-bottom:14px}
-.back svg{width:16px;height:16px;stroke:var(--accent);fill:none;stroke-width:2}
-.d-head{display:flex;gap:14px;align-items:flex-start;justify-content:space-between}
-.d-title{font-family:var(--serif);font-weight:600;font-size:30px;line-height:1.05}
-.d-actions{display:flex;gap:6px;align-items:flex-start;padding-top:4px}
-.fav-btn{background:none;border:none;cursor:pointer;color:var(--muted);
-  padding:3px;transition:.2s;border-radius:6px}
-.fav-btn.on{color:var(--warning)}
-.fav-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;display:block}
-.fav-btn.on svg{fill:currentColor}
-.d-glassart{flex:0 0 auto;color:var(--accent)}
-.d-glassart svg{width:48px;height:70px;display:block}
-.d-profile{color:var(--muted);font-size:14px;line-height:1.55;margin-top:12px;
-  font-style:italic;font-family:var(--serif)}
-.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
-.tag{font-size:11.5px;color:var(--text);background:var(--surface-alt);
-  border:1px solid var(--border);padding:5px 11px;border-radius:8px}
-.tag b{color:var(--accent);font-weight:500}
-.d-flavours{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.d-ftag{font-size:11.5px;padding:4px 10px;border-radius:6px;
-  background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-m);
-  letter-spacing:.02em}
-.section-label{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;
-  color:var(--muted);margin:24px 0 12px}
-.unit-inline{float:right;margin-top:-2px;font-size:11px;font-weight:600;letter-spacing:.05em;
-  color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-m);
-  border-radius:6px;padding:2px 9px;cursor:pointer;transition:.2s;font-family:var(--sans)}
-.unit-inline:active{transform:scale(.93)}
-.ing{display:flex;align-items:baseline;gap:12px;padding:9px 0;
-  border-bottom:1px solid var(--border)}
-.ing:last-child{border-bottom:none}
-.ing .q{flex:0 0 80px;color:var(--accent);font-variant-numeric:tabular-nums;
-  font-size:13.5px;font-weight:600}
-.ing .n{color:var(--text);font-size:15px}
-.step{display:flex;gap:12px;padding:6px 0}
-.step .num{flex:0 0 22px;height:22px;border-radius:50%;border:1px solid var(--border-s);
-  color:var(--accent);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
-.step p{font-size:14.5px;line-height:1.55;color:var(--text)}
-.note{background:var(--surface-alt);border:1px solid var(--border);
-  border-left:3px solid var(--accent);border-radius:0 12px 12px 0;
-  padding:13px 15px;font-size:14px;line-height:1.6;color:var(--muted)}
-.note b{color:var(--text);font-weight:500}
-
-/* ── FlavorGraph pairing UI ────────────────────────────── */
-.fg-block{margin-top:8px}
-.fg-row{margin:14px 0}
-.fg-label{display:block;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:8px}
-.fg-chips{display:flex;flex-wrap:wrap;gap:6px}
-.fg-chip{font-size:12.5px;padding:5px 11px;border-radius:7px;cursor:pointer;
-  background:var(--surface-alt);color:var(--text);border:1px solid var(--border);
-  transition:.15s var(--ease);display:inline-flex;align-items:center;gap:6px}
-.fg-chip:hover{border-color:var(--accent-m);color:var(--accent)}
-.fg-chip:active{transform:scale(.95)}
-.fg-chip small{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.fg-hint{color:var(--muted);font-size:13px;padding:6px 0}
-.fg-twist-btn{margin-top:14px;font-family:var(--sans);font-size:13px;font-weight:600;
-  letter-spacing:.03em;color:var(--accent);background:var(--accent-soft);
-  border:1px solid var(--accent-m);border-radius:9px;padding:9px 16px;cursor:pointer;
-  transition:.18s var(--ease)}
-.fg-twist-btn:hover{background:var(--accent);color:var(--bg)}
-.fg-twist-btn:active{transform:scale(.96)}
-.fg-twist-btn:disabled{opacity:.6;cursor:default}
-.fg-credit{margin-top:16px;font-size:10.5px;color:var(--muted);opacity:.8}
-.fg-explore-head{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--muted);margin:6px 0 12px}
-.fg-explore-grid .fg-chip{font-size:13.5px;padding:7px 13px}
-
-/* ── Library tabs shared ───────────────────────────────── */
-.lib-head{font-family:var(--serif);font-size:22px;font-weight:500;margin-bottom:4px}
-.lib-sub{color:var(--muted);font-size:13.5px;line-height:1.5;margin-bottom:18px}
-.lib-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
-  padding:15px;margin-bottom:10px;display:flex;gap:13px;align-items:flex-start}
-.lib-art{flex:0 0 50px;height:74px;color:var(--accent);display:flex;align-items:center;justify-content:center}
-.lib-art svg{width:46px;height:70px}
-.lib-card h3{font-family:var(--serif);font-weight:500;font-size:17.5px;line-height:1.1}
-.lib-card .aka{color:var(--muted);font-size:11.5px;margin-top:3px}
-.lib-card p{color:var(--muted);font-size:13.5px;line-height:1.5;margin-top:8px}
-.lib-card .mr{margin-top:8px;font-size:12.5px;color:var(--text)}
-.lib-card .mr b{color:var(--accent);font-weight:500}
-.lib-card .cap{margin-top:5px;font-size:12px;color:var(--muted)}
-
-/* ── Ice tab (redesigned) ──────────────────────────────── */
-.ice-selector{display:flex;gap:7px;overflow-x:auto;padding:0 0 16px;
-  margin:0 -20px;padding-left:20px;padding-right:20px;scrollbar-width:none}
-.ice-selector::-webkit-scrollbar{display:none}
-.ice-pill{flex:0 0 auto;border:1px solid var(--border);background:transparent;color:var(--muted);
-  font-family:var(--sans);font-size:12.5px;padding:7px 14px;border-radius:999px;
-  cursor:pointer;transition:.2s var(--ease);white-space:nowrap}
-.ice-pill.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:500}
-.ice-detail-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden}
-.ice-big-art{background:var(--surface-alt);padding:32px 20px 24px;
-  display:flex;align-items:center;justify-content:center;min-height:180px;
-  border-bottom:1px solid var(--border)}
-.ice-big-art svg{width:100%;max-width:260px;height:auto}
-.ice-detail-body{padding:22px 20px}
-.ice-name{font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.1;margin-bottom:4px}
-.ice-dil-badge{display:inline-flex;align-items:center;gap:6px;margin-bottom:14px}
-.ice-dil-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-.ice-dil-val{font-size:12.5px;font-weight:600;color:var(--accent);
-  background:var(--accent-soft);border:1px solid var(--accent-m);
-  padding:2px 10px;border-radius:6px}
-.ice-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px;font-family:var(--serif);font-style:italic}
-.ice-section{margin-bottom:18px}
-.ice-section-label{font-size:10px;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:9px}
-.ice-list{list-style:none;display:flex;flex-direction:column;gap:5px}
-.ice-list li{font-size:14px;color:var(--text);line-height:1.5;
-  display:flex;align-items:flex-start;gap:8px}
-.ice-list li::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;
-  background:var(--accent-m);margin-top:7px}
-.ice-list.avoid li::before{background:var(--danger)}
-.ice-chips-row{display:flex;flex-wrap:wrap;gap:7px}
-.ice-chip-item{font-size:12.5px;padding:5px 12px;border-radius:8px;
-  background:var(--surface-alt);border:1px solid var(--border);color:var(--text)}
-.ice-notes{display:flex;flex-direction:column;gap:9px;margin-top:4px}
-.ice-note-item{font-size:13px;line-height:1.55;color:var(--muted);
-  background:var(--surface-alt);border-radius:10px;padding:10px 13px;
-  border-left:3px solid var(--accent)}
-.ice-note-item b{color:var(--text);font-weight:500}
-
-/* ── Techniques (Prep / Assembly) ──────────────────────── */
-.tcat{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin:22px 0 12px}
-.tcat:first-child{margin-top:2px}
-.tcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:10px}
-.tcard h3{font-family:var(--serif);font-weight:500;font-size:17.5px;line-height:1.15}
-.tcard .sum{color:var(--muted);font-size:13.5px;line-height:1.5;margin-top:6px}
-.tcard details{margin-top:10px}
-.tcard summary{cursor:pointer;font-size:12.5px;color:var(--accent);letter-spacing:.04em;list-style:none;padding:4px 0;user-select:none}
-.tcard summary::-webkit-details-marker{display:none}
-.tcard summary::after{content:' 93'}
-.tcard details[open] summary::after{content:' 91'}
-.tcard .how{margin-top:8px}
-.tcard .how .step{padding:4px 0}
-.tcard .tip{margin-top:10px;font-size:13px;line-height:1.55;color:var(--text);background:var(--surface-alt);border-radius:10px;padding:10px 13px}
-.tcard .tip b{color:var(--accent);font-weight:500}
-.variant-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:6px;background:var(--accent-soft);color:var(--accent);margin:4px 3px 0 0}
-
-/* ── Garnish grid ──────────────────────────────────────── */
-.garn-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.garn-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:13px}
-.garn-card h4{font-family:var(--serif);font-size:14.5px;font-weight:500;margin-bottom:4px}
-.garn-card .place{font-size:11.5px;color:var(--accent)}
-.garn-card .tip{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.4}
-
-/* ── Conversions ───────────────────────────────────────── */
-.conv-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
-.conv-tab{border:1px solid var(--border);background:transparent;color:var(--muted);
-  font-family:var(--sans);font-size:12.5px;padding:7px 13px;border-radius:8px;cursor:pointer;transition:.2s}
-.conv-tab.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
-.conv-panel{display:none}.conv-panel.on{display:block}
-.conv-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-.conv-row input[type=number]{flex:1;height:44px;border-radius:10px;border:1px solid var(--border);
-  background:var(--surface);color:var(--text);font-size:16px;padding:0 14px;
-  outline:none;font-family:var(--sans);transition:.2s;min-width:0}
-.conv-row input:focus{border-color:var(--accent)}
-.conv-row select{height:44px;border-radius:10px;border:1px solid var(--border);
-  background:var(--surface);color:var(--text);font-size:13.5px;padding:0 10px;outline:none;cursor:pointer;font-family:var(--sans)}
-.conv-result{background:var(--surface-alt);border-radius:12px;padding:18px;text-align:center;margin-top:4px}
-.conv-result .val{font-family:var(--serif);font-size:30px;font-weight:500;color:var(--accent)}
-.conv-result .lbl{font-size:13px;color:var(--muted);margin-top:3px}
-.conv-setting{display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 16px;margin-top:16px}
-.conv-setting .cs-text span{font-size:14px;color:var(--text)}
-.conv-setting .cs-text small{font-size:12px;color:var(--muted);display:block;margin-top:2px}
-.toggle-pill{position:relative;width:42px;height:24px;background:var(--border-s);
-  border-radius:12px;cursor:pointer;transition:background .2s;border:none;flex:0 0 auto}
-.toggle-pill.on{background:var(--accent)}
-.toggle-pill::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;
-  border-radius:50%;background:#fff;transition:transform .2s}
-.toggle-pill.on::after{transform:translateX(18px)}
-
-/* ── Favourites & Settings ─────────────────────────────── */
-.fav-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px}
-.settings-sec{margin-bottom:26px}
-.settings-sec h3{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:12px}
-.setting-row{display:flex;align-items:center;justify-content:space-between;
-  padding:13px 0;border-bottom:1px solid var(--border)}
-.setting-row:last-child{border-bottom:none}
-.setting-row .sr-text span{font-size:14.5px}
-.setting-row .sr-text small{font-size:12px;color:var(--muted);display:block;margin-top:2px}
-.datasrc{margin-top:10px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
-.datasrc .pill{width:7px;height:7px;border-radius:50%;background:var(--success);flex:0 0 auto}
-
-/* ── Add view ──────────────────────────────────────────── */
-.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.add-btn{background:var(--surface);border:1px solid var(--border);border-radius:14px;
-  padding:18px 14px;cursor:pointer;text-align:center;transition:.2s var(--ease);color:var(--text)}
-.add-btn:active{transform:scale(.95);background:var(--surface-alt)}
-.add-btn svg{width:24px;height:24px;stroke:var(--accent);fill:none;stroke-width:1.6;display:block;margin:0 auto 8px}
-.add-btn span{font-size:13px}
-
-/* ── Bottom nav ────────────────────────────────────────── */
-.nav{position:absolute;left:0;right:0;bottom:0;display:flex;overflow-x:auto;
-  scrollbar-width:none;background:var(--surface);border-top:1px solid var(--border);
-  padding:5px 6px calc(5px + env(safe-area-inset-bottom));gap:2px;
-  -webkit-overflow-scrolling:touch}
-.nav::-webkit-scrollbar{display:none}
-.nav button{flex:0 0 auto;min-width:60px;background:none;border:none;color:var(--muted);
-  font-family:var(--sans);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
-  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;
-  padding:6px 7px;border-radius:10px;transition:.2s var(--ease);white-space:nowrap}
-.nav button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
-.nav button.on{color:var(--accent);background:var(--accent-soft)}
-.nav button:active{transform:scale(.88)}
+/* ── Footer ────────────────────────────────────────────── */
+footer{
+  padding:28px 0 56px; border-top:1px solid var(--border);
+  display:flex; align-items:center;
+  justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.footer-brand{
+  font-family:var(--mono); font-size:11px; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted);
+}
+.footer-note{ font-size:12px; color:var(--muted); }
+.footer-note a{ color:var(--muted); text-underline-offset:.2em; }
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="topbar">
-    <div>
-      <div class="brand">The Bar<span class="dot">.</span></div>
-      <div class="brand-sub">Bartender's codex</div>
-    </div>
-    <div class="topbar-right">
-      <button class="unit-toggle" id="unit-toggle-btn">ML</button>
-      <button class="theme-flick" id="theme-btn" aria-label="Toggle theme">
-        <span class="knob" id="theme-knob">
-          <svg id="theme-icon" viewBox="0 0 24 24">
-            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
-          </svg>
-        </span>
-      </button>
-    </div>
+<div class="wrap">
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <header>
+    <span class="project-label">Bar-Lab / v1</span>
+    <h1 class="hub-title">Two tools.<br>One <span>kitchen.</span></h1>
+    <p class="hub-sub">A cocktail recipe browser and a live flavour pairing engine. Both share the same ingredient database. Enter whichever room you need.</p>
   </header>
 
-  <div class="main">
+  <!-- ── Doors ───────────────────────────────────────────── -->
+  <div class="door-grid">
 
-    <!-- RECIPES
-         DEV NOTE — recipe overview segmentation options:
-         Currently: filter by base spirit (horizontal chip bar) + flavour tags.
-         Future considerations for additional grouping axes:
-           - By colour: amber / white / red / pink / green — useful for visual menu design
-           - By occasion: aperitivo / digestivo / session / celebration
-           - By ABV tier: low (under 10%) / mid / high / spirit-forward
-           - By occasion / service context: brunch / nightcap / long drink / shot
-           - By ingredient availability ("what can I make?")
-         The group-by selector below (All / Base / Flavour / Method) is the v1
-         approach. Colour and occasion grouping should be added as additional
-         flavour tags in the recipe data, not as separate data fields, so they
-         work with the same filter/group rendering logic.
-    -->
-    <section class="view active" id="recipes">
-      <div class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-        <input id="q" type="search" placeholder="Search recipes or ingredients…" autocomplete="off" />
+    <!-- The Bar -->
+    <a class="door" href="The Bar/index.html">
+      <div><span class="door-tag">Cocktail Reference</span></div>
+      <div class="door-head">
+        <h2 class="door-name">The Bar</h2>
+        <span class="door-glyph" aria-hidden="true">
+          <svg width="40" height="56" viewBox="0 0 44 60" fill="none"
+               stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+            <path d="M4,6 H40 L22,28 Z"/>
+            <line x1="8"  y1="7"  x2="16" y2="21" stroke-width=".7" opacity=".6"/>
+            <line x1="22" y1="28" x2="22" y2="46"/>
+            <line x1="10" y1="46" x2="34" y2="46"/>
+          </svg>
+        </span>
       </div>
-      <!-- Spirit filter chips -->
-      <div class="chips" id="chips"></div>
-      <!-- Flavour filter chips -->
-      <div class="fchips" id="fchips"></div>
-      <!-- Group-by selector -->
-      <div class="view-opts">
-        <span class="lbl">Group</span>
-        <button class="grp-btn on" data-grp="none">All</button>
-        <button class="grp-btn" data-grp="base">Base</button>
-        <button class="grp-btn" data-grp="flavour">Flavour</button>
-        <button class="grp-btn" data-grp="method">Method</button>
+      <p class="door-desc">IBA recipe browser with search and spirit filters. Glassware, techniques, ice guide, garnish reference, unit conversions, and a favourites collection.</p>
+      <div class="door-chips">
+        <span class="chip">102 IBA recipes</span>
+        <span class="chip">Glassware + Technique</span>
+        <span class="chip">ml / oz toggle</span>
       </div>
-      <div class="count" id="count"></div>
-      <div id="list"></div>
-    </section>
+      <span class="door-cta">Enter →</span>
+    </a>
 
-    <!-- DETAIL -->
-    <section class="view" id="detail"></section>
-
-    <!-- GLASSWARE -->
-    <section class="view" id="glassware">
-      <div class="lib-head">Glassware</div>
-      <div class="lib-sub">The right glass shapes aroma, temperature and dilution.</div>
-      <div id="glasslist"></div>
-    </section>
-
-    <!-- ICE — swipeable selector + large-format detail card -->
-    <section class="view" id="ice">
-      <div class="lib-head">Ice</div>
-      <div class="lib-sub">Select a type to see its dilution profile, compatible glassware and service notes.</div>
-      <div class="ice-selector" id="ice-selector"></div>
-      <div id="ice-detail"></div>
-    </section>
-
-    <!-- PREP -->
-    <section class="view" id="prep">
-      <div class="lib-head">Prep</div>
-      <div class="lib-sub">Clarifications, infusions and mise en place — what happens before service.</div>
-      <div id="preplist"></div>
-    </section>
-
-    <!-- ASSEMBLY -->
-    <section class="view" id="assembly">
-      <div class="lib-head">Assembly</div>
-      <div class="lib-sub">Every build method and when to use it.</div>
-      <div id="assemblylist"></div>
-    </section>
-
-    <!-- GARNISH -->
-    <section class="view" id="garnish">
-      <div class="lib-head">Garnish</div>
-      <div class="lib-sub">Finishing touches — aroma, placement and visual.</div>
-      <div id="garnishlist"></div>
-    </section>
-
-    <!-- PAIRINGS — FlavorGraph explorer -->
-    <section class="view" id="pairings">
-      <div class="lib-head">Pairings</div>
-      <div class="lib-sub">FlavorGraph pairing explorer — search any ingredient to see what it goes with.</div>
-      <div class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-        <input id="fg-q" type="search" placeholder="Try lime, mint, mezcal, espresso…" autocomplete="off" />
+    <!-- The Lab -->
+    <a class="door" href="The Lab/index.html">
+      <div><span class="door-tag live">Live engine</span></div>
+      <div class="door-head">
+        <h2 class="door-name">The Lab</h2>
+        <span class="door-glyph" aria-hidden="true">
+          <svg width="32" height="52" viewBox="0 0 36 56" fill="none"
+               stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+            <line x1="13" y1="4"  x2="23" y2="4"/>
+            <line x1="14" y1="4"  x2="8"  y2="24"/>
+            <line x1="22" y1="4"  x2="28" y2="24"/>
+            <path d="M8,24 Q2,40 6,49 Q10,55 18,55 Q26,55 30,49 Q34,40 28,24 Z"/>
+            <line x1="10" y1="44" x2="26" y2="44" stroke-width=".7" opacity=".5"/>
+          </svg>
+        </span>
       </div>
-      <div id="fg-explore"></div>
-    </section>
+      <p class="door-desc">Add any ingredients, get ranked compatibility scores from the FlavorGraph engine. Lock ingredients, explore alternatives, tune the confidence threshold.</p>
+      <div class="door-chips">
+        <span class="chip">6,600+ ingredients</span>
+        <span class="chip">123k pairing edges</span>
+        <span class="chip">Live Supabase RPC</span>
+      </div>
+      <span class="door-cta">Enter →</span>
+    </a>
 
-    <!-- CONVERSIONS -->
-    <section class="view" id="conversions">
-      <div class="lib-head">Conversions</div>
-      <div class="lib-sub">Bar measures, volume, weight and temperature.</div>
-      <div class="conv-tabs">
-        <button class="conv-tab on" data-cp="cp-bar">Bar</button>
-        <button class="conv-tab" data-cp="cp-vol">Volume</button>
-        <button class="conv-tab" data-cp="cp-wt">Weight</button>
-        <button class="conv-tab" data-cp="cp-temp">Temp</button>
-      </div>
-      <div class="conv-panel on" id="cp-bar">
-        <div class="conv-row">
-          <input type="number" id="bar-val" value="30" min="0" step="any" />
-          <select id="bar-from"></select>
-        </div>
-        <div style="text-align:center;color:var(--muted);font-size:13px;margin:4px 0">converts to</div>
-        <div class="conv-row"><select id="bar-to"></select></div>
-        <div class="conv-result"><div class="val" id="bar-out">—</div><div class="lbl" id="bar-lbl"></div></div>
-        <div class="conv-setting">
-          <div class="cs-text"><span>Precise oz = 29.5735 ml</span><small>Default: 30 ml (bar jigger)</small></div>
-          <button class="toggle-pill" id="precise-oz-btn"></button>
-        </div>
-      </div>
-      <div class="conv-panel" id="cp-vol">
-        <div class="conv-row"><input type="number" id="vol-val" value="100" min="0" step="any" /><select id="vol-from"></select></div>
-        <div style="text-align:center;color:var(--muted);font-size:13px;margin:4px 0">converts to</div>
-        <div class="conv-row"><select id="vol-to"></select></div>
-        <div class="conv-result"><div class="val" id="vol-out">—</div><div class="lbl" id="vol-lbl"></div></div>
-      </div>
-      <div class="conv-panel" id="cp-wt">
-        <div class="conv-row"><input type="number" id="wt-val" value="100" min="0" step="any" /><select id="wt-from"></select></div>
-        <div style="text-align:center;color:var(--muted);font-size:13px;margin:4px 0">converts to</div>
-        <div class="conv-row"><select id="wt-to"></select></div>
-        <div class="conv-result"><div class="val" id="wt-out">—</div><div class="lbl" id="wt-lbl"></div></div>
-      </div>
-      <div class="conv-panel" id="cp-temp">
-        <div class="conv-row"><input type="number" id="temp-val" value="4" step="any" /><select id="temp-from"><option value="c">°C</option><option value="f">°F</option></select></div>
-        <div style="text-align:center;color:var(--muted);font-size:13px;margin:4px 0">converts to</div>
-        <div class="conv-row"><select id="temp-to"><option value="f">°F</option><option value="c">°C</option></select></div>
-        <div class="conv-result"><div class="val" id="temp-out">—</div><div class="lbl" id="temp-lbl"></div></div>
-      </div>
-    </section>
+  </div><!-- /door-grid -->
 
-    <!-- FAVOURITES -->
-    <section class="view" id="favourites">
-      <div class="lib-head">Favourites</div>
-      <div class="lib-sub">Recipes you've starred.</div>
-      <div id="favlist"></div>
-    </section>
+  <!-- ── Info strip ───────────────────────────────────────── -->
+  <section class="info-strip">
+    <div class="info-card">
+      <span class="info-lbl">Backend</span>
+      <p class="info-body">
+        <strong>Supabase FlavorGraph</strong> — 6,600+ ingredient nodes with 300-dimensional embeddings,
+        123k weighted pairing edges. Shared by both apps. Read-only anon key, safe in client.
+      </p>
+    </div>
+    <div class="info-card">
+      <span class="info-lbl">Stack</span>
+      <p class="info-body">
+        <strong>Plain HTML / CSS / JS.</strong> No framework, no build step, no npm.
+        Hosted on Vercel; auto-deploys on push to <code style="font-family:var(--mono);font-size:.85em">main</code>.
+        <code style="font-family:var(--mono);font-size:.85em">tokens.css</code> shared by both apps.
+      </p>
+    </div>
+    <div class="info-card">
+      <span class="info-lbl">Data</span>
+      <p class="info-body">
+        Park et al., <em>FlavorGraph</em>, <em>Scientific Reports</em> 2021.
+        <strong>102 IBA cocktail recipes</strong> in Supabase.
+        FlavorGraph trained on 1M+ recipes and 1,500 flavor molecules.
+      </p>
+    </div>
+  </section>
 
-    <!-- ADD -->
-    <section class="view" id="add">
-      <div class="lib-head">Add</div>
-      <div class="lib-sub">Save your own recipes to the collection. (Coming soon — updates via Supabase for now.)</div>
-      <div class="add-grid">
-        <button class="add-btn"><svg viewBox="0 0 24 24"><path d="M7 3h10l-1 7a4 4 0 01-8 0L7 3z"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg><span>Recipe</span></button>
-        <button class="add-btn"><svg viewBox="0 0 24 24"><path d="M6 3h12l-1.5 5.5a4.5 4.5 0 01-9 0L6 3z"/><line x1="12" y1="13" x2="12" y2="21"/><line x1="8.5" y1="21" x2="15.5" y2="21"/></svg><span>Glassware</span></button>
-        <button class="add-btn"><svg viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6l-4.6 8.4A2 2 0 007.2 21h9.6a2 2 0 001.8-3.1L14 9V3"/><line x1="8.4" y1="14.5" x2="15.6" y2="14.5"/></svg><span>Technique</span></button>
-        <button class="add-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span>More soon</span></button>
-      </div>
-    </section>
+  <!-- ── Footer ──────────────────────────────────────────── -->
+  <footer>
+    <span class="footer-brand">Bar-Lab</span>
+    <span class="footer-note">Fonts: Inter · JetBrains Mono · WCAG AA validated</span>
+  </footer>
 
-    <!-- SETTINGS -->
-    <section class="view" id="settings">
-      <div class="lib-head">Settings</div>
-      <div class="settings-sec">
-        <h3>Display</h3>
-        <div class="setting-row">
-          <div class="sr-text"><span>Dark mode</span><small>Easier on the eyes in dim bars</small></div>
-          <button class="toggle-pill" id="dark-toggle"></button>
-        </div>
-        <div class="setting-row">
-          <div class="sr-text"><span>Show oz instead of ml</span><small>1 oz = 30 ml by default</small></div>
-          <button class="toggle-pill" id="unit-toggle-settings"></button>
-        </div>
-        <div class="setting-row">
-          <div class="sr-text"><span>Precise oz (29.5735 ml)</span><small>Off = bar-standard 30 ml</small></div>
-          <button class="toggle-pill" id="precise-oz-settings"></button>
-        </div>
-      </div>
-      <div class="settings-sec">
-        <h3>Data</h3>
-        <div class="datasrc" id="datasrc"><span class="pill"></span><span>Loading…</span></div>
-      </div>
-    </section>
-
-  </div><!-- /main -->
-
-  <nav class="nav" id="nav">
-    <button data-go="recipes" class="on">
-      <svg viewBox="0 0 24 24"><path d="M7 3h10l-1 7a4 4 0 01-8 0L7 3z"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>Recipes
-    </button>
-    <button data-go="glassware">
-      <svg viewBox="0 0 24 24"><path d="M6 3h12l-1.5 5.5a4.5 4.5 0 01-9 0L6 3z"/><line x1="12" y1="13" x2="12" y2="21"/><line x1="8.5" y1="21" x2="15.5" y2="21"/></svg>Glassware
-    </button>
-    <button data-go="ice">
-      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="6" height="6" rx="1"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="3" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="21" y2="12"/><line x1="5.6" y1="5.6" x2="8.5" y2="8.5"/><line x1="15.5" y1="15.5" x2="18.4" y2="18.4"/><line x1="18.4" y1="5.6" x2="15.5" y2="8.5"/><line x1="8.5" y1="15.5" x2="5.6" y2="18.4"/></svg>Ice
-    </button>
-    <button data-go="prep">
-      <svg viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6l-4.6 8.4A2 2 0 007.2 21h9.6a2 2 0 001.8-3.1L14 9V3"/><line x1="8.4" y1="14.5" x2="15.6" y2="14.5"/></svg>Prep
-    </button>
-    <button data-go="assembly">
-      <svg viewBox="0 0 24 24"><rect x="4" y="8" width="7" height="13" rx="2"/><rect x="13" y="4" width="7" height="17" rx="2"/><line x1="7.5" y1="8" x2="7.5" y2="4"/></svg>Assembly
-    </button>
-    <button data-go="garnish">
-      <svg viewBox="0 0 24 24"><path d="M12 2C8 2 4 6 4 10c0 3 2 5.5 5 7l3 3 3-3c3-1.5 5-4 5-7 0-4-4-8-8-8z"/></svg>Garnish
-    </button>
-    <button data-go="pairings">
-      <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="7" r="2.4"/><circle cx="7" cy="18" r="2.4"/><circle cx="17" cy="17" r="2.4"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="6.6" y1="8.2" x2="6.6" y2="15.6"/><line x1="7.8" y1="16.6" x2="15.4" y2="8.6"/><line x1="16.6" y1="9" x2="16.8" y2="14.8"/></svg>Pairings
-    </button>
-    <button data-go="conversions">
-      <svg viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>Convert
-    </button>
-    <button data-go="favourites">
-      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Favs
-    </button>
-    <button data-go="add">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add
-    </button>
-    <button data-go="settings">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
-    </button>
-  </nav>
 </div>
-
-<script>
-
-/* ============================================================
-   SUPABASE-READY DATA LAYER
-   ============================================================ */
-const SUPABASE_URL = "https://zmflwqfebartfnjrsvpv.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_paTGMPndKkktfbuqxpdLCA_pkPmHkYB";
-
-/* ============================================================
-   FLAVORGRAPH — live pairing service client
-   Talks to the Postgres RPCs created by flavorgraph/flavorgraph-schema.sql
-   (flavor_pair / flavor_tags), exposed over Supabase REST.
-   Results are cached in memory + localStorage so the bar can run offline
-   after the first lookup.
-   ============================================================ */
-const FG = {
-  enabled(){ return !!(SUPABASE_URL && SUPABASE_ANON_KEY); },
-  _mem:new Map(),
-  async _rpc(fn, body){
-    const ck=fn+":"+JSON.stringify(body);
-    if(this._mem.has(ck)) return this._mem.get(ck);
-    try{ const ls=localStorage.getItem("fg:"+ck); if(ls){ const v=JSON.parse(ls); this._mem.set(ck,v); return v; } }catch(e){}
-    const res=await fetch(SUPABASE_URL+"/rest/v1/rpc/"+fn,{
-      method:"POST",
-      headers:{apikey:SUPABASE_ANON_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify(body)
-    });
-    if(!res.ok) throw new Error("FlavorGraph "+res.status);
-    const data=await res.json();
-    this._mem.set(ck,data);
-    try{ localStorage.setItem("fg:"+ck,JSON.stringify(data)); }catch(e){}
-    return data;
-  },
-  pair(ingredients, mode="explore", exclude=[], limit=10){
-    return this._rpc("flavor_pair",{p_ingredients:ingredients,p_mode:mode,p_exclude:exclude,p_limit:limit});
-  },
-  tags(ingredients, limit=4){
-    return this._rpc("flavor_tags",{p_ingredients:ingredients,p_limit:limit});
-  }
-};
-
-async function loadData(){
-  if(SUPABASE_URL && SUPABASE_ANON_KEY){
-    try{
-      const h={apikey:SUPABASE_ANON_KEY};
-      const [r,g,t]=await Promise.all([
-        fetch(SUPABASE_URL+"/rest/v1/recipes?select=*&order=name.asc",{headers:h}),
-        fetch(SUPABASE_URL+"/rest/v1/glassware?select=*&order=name.asc",{headers:h}),
-        fetch(SUPABASE_URL+"/rest/v1/techniques?select=*&order=id.asc",{headers:h})
-      ]);
-      if(r.ok&&g.ok&&t.ok){
-        const recipes=await r.json();
-        const glassware=(await g.json()).map(x=>({...x,desc:x.desc??x.description}));
-        const techniques=await t.json();
-        return{recipes,glassware,techniques,source:"Supabase (live)"};
-      }
-    }catch(e){console.warn("Supabase unavailable, using bundled seed.",e)}
-  }
-  return{recipes:SEED_RECIPES,glassware:SEED_GLASSWARE,techniques:SEED_TECHNIQUES,source:"Bundled seed data"};
-}
-
-/* ============================================================
-   SEED: RECIPES  (flavours[] added for tag filtering + grouping)
-   ============================================================ */
-const SEED_RECIPES=[
-  {id:1,name:"Old Fashioned",base:"Whiskey",method:"Stirred",glass:"Rocks",served:"On a large cube",
-   profile:"The original cocktail — spirit-forward, rich and barely sweet.",
-   flavours:["boozy","bitter","sweet"],
-   ingredients:[{q:"60 ml",n:"Bourbon"},{q:"7.5 ml",n:"Rich demerara syrup (2:1)"},{q:"2 dashes",n:"Angostura bitters"},{q:"Splash",n:"Water"}],
-   garnish:"Expressed orange peel; optional brandied cherry",
-   steps:["Add a large ice cube to a rocks glass.","Combine bourbon, syrup, bitters and water directly in the glass.","Stir 20-25 rotations until chilled and integrated.","Express the orange peel over the surface, run it around the rim and drop it in."],
-   notes:"Dates to the early 1800s as the literal definition of a 'cock-tail'. When in doubt, under-sweeten."},
-  {id:2,name:"Negroni",base:"Gin",method:"Stirred",glass:"Rocks",served:"On the rocks",
-   profile:"Equal parts, bittersweet and bracing — an aperitivo benchmark.",
-   flavours:["bitter","herbal","sweet"],
-   ingredients:[{q:"30 ml",n:"London dry gin"},{q:"30 ml",n:"Campari"},{q:"30 ml",n:"Sweet vermouth"}],
-   garnish:"Orange peel or half-wheel",
-   steps:["Combine all over ice in a mixing glass.","Stir until well chilled, about 20 seconds.","Strain over a large cube in a rocks glass.","Express orange peel and garnish."],
-   notes:"Born in Florence around 1919. Swap gin for prosecco to make a Sbagliato."},
-  {id:3,name:"Daiquiri",base:"Rum",method:"Shaken",glass:"Coupe",served:"Up",
-   profile:"The three-ingredient sour that tests a bartender — clean, bright, balanced.",
-   flavours:["sour","refreshing","citrus"],
-   ingredients:[{q:"60 ml",n:"White rum"},{q:"22.5 ml",n:"Fresh lime juice"},{q:"15 ml",n:"Simple syrup (1:1)"}],
-   garnish:"Lime wheel",
-   steps:["Combine all in a shaker with ice.","Shake hard for 10-12 seconds.","Double-strain into a chilled coupe.","Garnish with a lime wheel."],
-   notes:"Always fresh lime, always cold glass — there is nowhere to hide."},
-  {id:4,name:"Margarita",base:"Tequila",method:"Shaken",glass:"Rocks",served:"Salt rim, on the rocks",
-   profile:"Tequila sour with orange — crisp, savoury, citrus-driven.",
-   flavours:["sour","citrus","salty"],
-   ingredients:[{q:"50 ml",n:"Blanco tequila"},{q:"25 ml",n:"Cointreau"},{q:"20 ml",n:"Fresh lime juice"}],
-   garnish:"Half salt rim, lime wheel",
-   steps:["Salt half the rim so guests can choose.","Shake tequila, Cointreau and lime with ice.","Strain over fresh ice.","Garnish with a lime wheel."],
-   notes:"Salt only half the rim — it sharpens the citrus without overwhelming it."},
-  {id:5,name:"Manhattan",base:"Whiskey",method:"Stirred",glass:"Nick & Nora",served:"Up",
-   profile:"Rye and sweet vermouth — silky, warming, classically elegant.",
-   flavours:["boozy","sweet","smooth"],
-   ingredients:[{q:"60 ml",n:"Rye whiskey"},{q:"30 ml",n:"Sweet vermouth"},{q:"2 dashes",n:"Angostura bitters"}],
-   garnish:"Brandied cherry",
-   steps:["Combine all over ice in a mixing glass.","Stir until well chilled.","Strain into a chilled Nick & Nora.","Garnish with a brandied cherry."],
-   notes:"Rye keeps it dry; bourbon makes it rounder. 2:1 ratio is the modern standard."},
-  {id:6,name:"Whiskey Sour",base:"Whiskey",method:"Shaken",glass:"Rocks",served:"On the rocks",
-   profile:"Bourbon, lemon and a silky egg-white cap — tart, plush, easy to love.",
-   flavours:["sour","sweet","creamy"],
-   ingredients:[{q:"60 ml",n:"Bourbon"},{q:"22.5 ml",n:"Fresh lemon juice"},{q:"15 ml",n:"Simple syrup"},{q:"15 ml",n:"Egg white (optional)"}],
-   garnish:"Angostura dots; lemon and cherry",
-   steps:["If using egg white, dry-shake all without ice first.","Add ice and shake hard until frothy.","Strain over fresh ice in a rocks glass.","Dot bitters on the foam and drag a pick through."],
-   notes:"The egg white is optional but transforms the texture."},
-  {id:7,name:"Mojito",base:"Rum",method:"Built",glass:"Collins",served:"Over crushed ice",
-   profile:"Mint, lime and soda over rum — long, cooling, effortless in heat.",
-   flavours:["refreshing","mint","citrus"],
-   ingredients:[{q:"60 ml",n:"White rum"},{q:"22.5 ml",n:"Fresh lime juice"},{q:"2 tsp",n:"Caster sugar"},{q:"8 leaves",n:"Fresh mint"},{q:"Top",n:"Soda water"}],
-   garnish:"Mint sprig, lime wheel",
-   steps:["Gently press mint with sugar and lime — bruise, don't shred.","Add rum and fill with crushed ice.","Top with soda and churn briefly.","Cap with more ice and a generous mint sprig."],
-   notes:"Slap the garnish mint between your palms to release oils before serving."},
-  {id:8,name:"Dry Martini",base:"Gin",method:"Stirred",glass:"Martini",served:"Up",
-   profile:"Cold, clean and aromatic — the most personal drink on the list.",
-   flavours:["dry","boozy","aromatic"],
-   ingredients:[{q:"60 ml",n:"London dry gin"},{q:"10 ml",n:"Dry vermouth"},{q:"1 dash",n:"Orange bitters (optional)"}],
-   garnish:"Lemon twist or olives",
-   steps:["Combine gin and vermouth over plenty of ice.","Stir 30 seconds — ice-cold and lightly diluted.","Strain into a frozen glass.","Express a lemon twist or add olives."],
-   notes:"Ratios are a matter of faith, from 2:1 to a whisper of vermouth. Keep glass and gin in the freezer."},
-  {id:9,name:"Espresso Martini",base:"Vodka",method:"Shaken",glass:"Coupe",served:"Up",
-   profile:"Vodka, coffee and liqueur — bittersweet, glossy, wide awake.",
-   flavours:["bitter","sweet","creamy","boozy"],
-   ingredients:[{q:"50 ml",n:"Vodka"},{q:"30 ml",n:"Fresh espresso"},{q:"20 ml",n:"Coffee liqueur"},{q:"10 ml",n:"Simple syrup (to taste)"}],
-   garnish:"Three coffee beans",
-   steps:["Pull the espresso fresh and combine all with ice.","Shake very hard — the crema comes from aeration.","Double-strain into a chilled coupe.","Float three coffee beans on the foam."],
-   notes:"Created by Dick Bradsell in 1980s London. Hot, fresh espresso and a hard shake are non-negotiable."},
-  {id:10,name:"Aviation",base:"Gin",method:"Shaken",glass:"Coupe",served:"Up",
-   profile:"Floral and tart with a sky-blue tint from creme de violette.",
-   flavours:["floral","sour","herbal"],
-   ingredients:[{q:"45 ml",n:"Gin"},{q:"15 ml",n:"Maraschino liqueur"},{q:"15 ml",n:"Fresh lemon juice"},{q:"7.5 ml",n:"Creme de violette"}],
-   garnish:"Brandied cherry",
-   steps:["Combine all in a shaker with ice.","Shake until well chilled.","Double-strain into a chilled coupe.","Sink a brandied cherry."],
-   notes:"Go light on the violette — too much and it turns soapy rather than floral."},
-  {id:11,name:"Mai Tai",base:"Rum",method:"Shaken",glass:"Rocks",served:"Over crushed ice",
-   profile:"Rum, lime, orange and almond — the benchmark tiki drink, not a sugar bomb.",
-   flavours:["tropical","citrus","nutty"],
-   ingredients:[{q:"30 ml",n:"Aged Jamaican rum"},{q:"30 ml",n:"Rhum agricole"},{q:"15 ml",n:"Orange curacao"},{q:"15 ml",n:"Orgeat"},{q:"22.5 ml",n:"Fresh lime juice"}],
-   garnish:"Spent lime shell, mint sprig",
-   steps:["Shake everything briefly with crushed ice.","Pour unstrained into a double rocks glass.","Add more crushed ice.","Garnish with lime shell and a mint bouquet."],
-   notes:"Trader Vic's 1944 original is a sour, not a fruit punch."},
-  {id:12,name:"Cosmopolitan",base:"Vodka",method:"Shaken",glass:"Martini",served:"Up",
-   profile:"Citron vodka and cranberry — tart, dry and a vivid pink.",
-   flavours:["citrus","sour","sweet"],
-   ingredients:[{q:"45 ml",n:"Citron vodka"},{q:"15 ml",n:"Cointreau"},{q:"15 ml",n:"Cranberry juice"},{q:"7.5 ml",n:"Fresh lime juice"}],
-   garnish:"Lime wheel or flamed orange peel",
-   steps:["Combine all in a shaker with ice.","Shake until well chilled.","Double-strain into a chilled glass.","Garnish with lime wheel or flamed orange."],
-   notes:"Use just enough cranberry for colour and tartness — it is a citrus drink, not a sweet one."}
-];
-
-/* Master flavour tag list for filter UI (determines chip order) */
-const FLAVOUR_TAGS=["boozy","sour","bitter","sweet","herbal","refreshing","tropical","floral","creamy","dry","citrus","aromatic","mint","salty","nutty","smooth"];
-
-/* Flavour → group name mapping for group-by-flavour */
-const FLAVOUR_GROUP={
-  boozy:"Spirit-forward",dry:"Spirit-forward",aromatic:"Spirit-forward",smooth:"Spirit-forward",
-  bitter:"Bitter / Herbal",herbal:"Bitter / Herbal",floral:"Bitter / Herbal",
-  sour:"Sour / Citrus",citrus:"Sour / Citrus",salty:"Sour / Citrus",
-  sweet:"Sweet / Creamy",creamy:"Sweet / Creamy",
-  refreshing:"Refreshing / Long",mint:"Refreshing / Long",
-  tropical:"Tropical",nutty:"Tropical"
-};
-
-
-/* ============================================================
-   ICE — Large-format SVG illustrations + full detail data
-   Sorted alphabetically (A-Z) as displayed in the selector.
-   ============================================================ */
-
-/* SVG string map keyed by ice id */
-const ICE_SVG={
-  block:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="42,126 68,38 186,32 214,96 182,172 76,178" stroke-width="2" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <line x1="68" y1="38" x2="120" y2="114" stroke-width="1" opacity=".35"/>
-    <line x1="120" y1="114" x2="182" y2="172" stroke-width="1" opacity=".35"/>
-    <line x1="120" y1="114" x2="214" y2="96" stroke-width="1" opacity=".35"/>
-    <line x1="120" y1="114" x2="42" y2="126" stroke-width="1" opacity=".35"/>
-    <polygon points="218,106 232,88 244,104" stroke-width="1.4" opacity=".55"/>
-    <polygon points="22,140 10,158 28,162" stroke-width="1.4" opacity=".55"/>
-    <polygon points="195,178 206,166 218,180" stroke-width="1.2" opacity=".4"/>
-  </svg>`,
-  blended:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="130,14 197,52 197,128 130,166 63,128 63,52" stroke-width="2" stroke-linejoin="round"/>
-    <line x1="130" y1="14" x2="130" y2="166" stroke-width="1.8"/>
-    <line x1="63" y1="52" x2="197" y2="128" stroke-width="1.8"/>
-    <line x1="197" y1="52" x2="63" y2="128" stroke-width="1.8"/>
-    <line x1="130" y1="14" x2="108" y2="32" stroke-width="1.2" opacity=".55"/>
-    <line x1="130" y1="14" x2="152" y2="32" stroke-width="1.2" opacity=".55"/>
-    <line x1="63" y1="52" x2="48" y2="38" stroke-width="1.2" opacity=".55"/>
-    <line x1="63" y1="52" x2="54" y2="74" stroke-width="1.2" opacity=".55"/>
-    <line x1="197" y1="52" x2="212" y2="38" stroke-width="1.2" opacity=".55"/>
-    <line x1="197" y1="52" x2="206" y2="74" stroke-width="1.2" opacity=".55"/>
-    <line x1="130" y1="166" x2="108" y2="182" stroke-width="1.2" opacity=".55"/>
-    <line x1="130" y1="166" x2="152" y2="182" stroke-width="1.2" opacity=".55"/>
-    <line x1="63" y1="128" x2="48" y2="142" stroke-width="1.2" opacity=".55"/>
-    <line x1="197" y1="128" x2="212" y2="142" stroke-width="1.2" opacity=".55"/>
-    <circle cx="130" cy="90" r="8" stroke-width="1.4" fill="var(--accent-soft)"/>
-  </svg>`,
-  crushed:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="36,58 72,44 90,76 56,88" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <polygon points="104,36 154,46 160,82 112,78" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <polygon points="170,54 218,46 222,86 174,92" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <polygon points="26,104 72,96 78,132 30,140" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <polygon points="92,108 138,100 142,138 96,146" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <polygon points="158,98 200,90 208,124 164,132" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <polygon points="48,152 90,142 96,170 54,178" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <polygon points="120,156 166,148 170,176 124,182" stroke-width="1.8" stroke-linejoin="round" fill="var(--accent-soft)"/>
-  </svg>`,
-  cube:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="130,28 200,66 200,136 130,174 60,136 60,66" stroke-width="2" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <line x1="130" y1="28" x2="130" y2="98" stroke-width="1" opacity=".4"/>
-    <line x1="60" y1="66" x2="130" y2="98" stroke-width="1" opacity=".4"/>
-    <line x1="200" y1="66" x2="130" y2="98" stroke-width="1" opacity=".4"/>
-    <line x1="130" y1="98" x2="130" y2="174" stroke-width="1" opacity=".3"/>
-  </svg>`,
-  large:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="130,18 210,60 210,148 130,190 50,148 50,60" stroke-width="2.2" stroke-linejoin="round" fill="var(--accent-soft)"/>
-    <line x1="130" y1="18" x2="130" y2="100" stroke-width="1.2" opacity=".4"/>
-    <line x1="50" y1="60" x2="130" y2="100" stroke-width="1.2" opacity=".4"/>
-    <line x1="210" y1="60" x2="130" y2="100" stroke-width="1.2" opacity=".4"/>
-    <line x1="130" y1="100" x2="130" y2="190" stroke-width="1.2" opacity=".3"/>
-    <polygon points="130,30 198,68 198,140 130,178 62,140 62,68" stroke-width="0.6" opacity=".25"/>
-  </svg>`,
-  none:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50,40 Q130,148 210,40" stroke-width="2" stroke-linecap="round"/>
-    <line x1="50" y1="40" x2="210" y2="40" stroke-width="2"/>
-    <line x1="130" y1="146" x2="130" y2="180" stroke-width="2"/>
-    <line x1="92" y1="182" x2="168" y2="182" stroke-width="2" stroke-linecap="round"/>
-    <line x1="80" y1="72" x2="180" y2="72" stroke-width="0.8" opacity=".3" stroke-dasharray="4 4"/>
-  </svg>`,
-  pebble:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="80" cy="66" rx="40" ry="26" stroke-width="1.8" fill="var(--accent-soft)"/>
-    <ellipse cx="180" cy="66" rx="40" ry="26" stroke-width="1.8" fill="var(--accent-soft)"/>
-    <ellipse cx="58" cy="112" rx="38" ry="24" stroke-width="1.8" fill="var(--accent-soft)"/>
-    <ellipse cx="202" cy="112" rx="38" ry="24" stroke-width="1.8" fill="var(--accent-soft)"/>
-    <ellipse cx="130" cy="88" rx="38" ry="24" stroke-width="1.8" fill="var(--accent-soft)"/>
-    <ellipse cx="88" cy="156" rx="38" ry="24" stroke-width="1.8" fill="var(--accent-soft)"/>
-    <ellipse cx="172" cy="156" rx="38" ry="24" stroke-width="1.8" fill="var(--accent-soft)"/>
-  </svg>`,
-  sphere:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="130" cy="100" r="82" stroke-width="2" fill="var(--accent-soft)"/>
-    <path d="M48,100 Q90,78 172,100 Q90,122 48,100" stroke-width="0.8" opacity=".35" fill="none"/>
-    <path d="M86,32 Q104,18 136,28" stroke-width="1.6" opacity=".55" stroke-linecap="round"/>
-    <circle cx="100" cy="44" r="6" stroke-width="1" opacity=".35" fill="none"/>
-  </svg>`,
-  spear:`<svg viewBox="0 0 260 200" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <rect x="96" y="14" width="68" height="172" rx="10" stroke-width="2" fill="var(--accent-soft)"/>
-    <line x1="114" y1="24" x2="114" y2="178" stroke-width="0.6" opacity=".28"/>
-    <line x1="146" y1="24" x2="146" y2="178" stroke-width="0.6" opacity=".28"/>
-    <line x1="98" y1="52" x2="162" y2="52" stroke-width="0.6" opacity=".2"/>
-    <line x1="98" y1="100" x2="162" y2="100" stroke-width="0.6" opacity=".2"/>
-    <line x1="98" y1="148" x2="162" y2="148" stroke-width="0.6" opacity=".2"/>
-  </svg>`
-};
-
-/* Detailed ice reference data (sorted A-Z) */
-const ICE_DATA=[
-  {id:"block",name:"Block / Shard",dilution:"Very Slow",
-   description:"Cut or carved from a large-format block mold. Impressive surface area in a vessel with minimal dilution over long service periods. Primarily a punch and batch tool.",
-   useFor:["Punch bowls and batch serves","Table-side service vessels","Carved centrepiece or showpiece ice"],
-   avoidFor:["Single-serve cocktails — too large and hard to handle","Standard rocks glasses — will not fit"],
-   glassware:["Punch Bowl","Large format vessel","Decorative serving pieces"],
-   drinks:["Sangria","Rum Punch","Pimm's Cup","Claret Cup","Batched Negroni"],
-   notes:[
-     {label:"Temper before use",text:"Leave at room temperature 2-3 minutes. Pouring directly onto a frozen block causes cracking and clouding."},
-     {label:"Water quality",text:"Use filtered or distilled water — impurities and minerals cloud the ice from the inside out."},
-     {label:"Cutting technique",text:"Use an ice pick or serrated ice saw along the grain for clean shards. Never force a break."},
-     {label:"Storage",text:"Stable -18°C. Temperature swings cause internal fractures before the block even reaches service."}
-   ]
-  },
-  {id:"blended",name:"Blended / Frozen",dilution:"Built-in",
-   description:"The ice is part of the drink — blended with the cocktail ingredients to create a smooth, uniform frozen texture. Dilution is structural, not incidental.",
-   useFor:["Frozen cocktails where texture is the serve","Blended Margaritas, Daiquiris, Pina Coladas"],
-   avoidFor:["Any shaken or stirred cocktail","Drinks where clarity or separation is desired"],
-   glassware:["Hurricane","Tiki Mug","Rocks (frozen pours)","Speciality frozen-serve vessel"],
-   drinks:["Frozen Margarita","Pina Colada","Frozen Daiquiri","Frose","Frozen Negroni"],
-   notes:[
-     {label:"Measure ice precisely",text:"Too much = watery drink. Too little = a dense slushy. A measured 1:1 ratio by volume to liquid is a starting point."},
-     {label:"Blending order",text:"Add ingredients first, ice last. Blend low to start, then high. Stop as soon as smooth — over-blending adds air and heats the drink."},
-     {label:"Serve immediately",text:"Frozen cocktails melt within minutes. Pre-chill the blender jug and the glass."},
-     {label:"Machine tip",text:"A commercial blender (Vitamix, Blendtec) gives far more consistent results than bar blenders under heavy service."}
-   ]
-  },
-  {id:"crushed",name:"Crushed",dilution:"Fast",
-   description:"Small, irregular fragments with maximum surface area. Chills extremely fast and dilutes rapidly. The texture and dilution are structural features of the drink — not side effects.",
-   useFor:["Juleps, swizzles and any churned drink","Tiki drinks where ice is part of the presentation","Builds where the drink settles into the ice over time"],
-   avoidFor:["Spirit-forward drinks where controlled dilution is critical","Shaking — uneven tumble leads to inconsistent chilling"],
-   glassware:["Julep Cup","Collins","Hurricane","Tiki Mug","Copper Mug"],
-   drinks:["Mint Julep","Mojito","Queen's Park Swizzle","Caipirinha","Bramble"],
-   notes:[
-     {label:"Service speed",text:"Serve immediately — crushed ice melts significantly within 3-5 minutes. Pre-crush as close to service as possible."},
-     {label:"Pack tightly",text:"It compresses as the drink settles. Overfill the glass and press down before adding garnish."},
-     {label:"Production",text:"Use a Lewis bag and mallet for small batches. A crushed ice machine for high-volume service."},
-     {label:"Top on service",text:"Always add a crown of fresh crushed ice just before serving — the mound above the rim is part of the look."}
-   ]
-  },
-  {id:"cube",name:"Cube (standard)",dilution:"Medium",
-   description:"The all-purpose workhorse. Standard 2-3 cm cubes balance chilling speed with dilution rate. The go-to for shaking, building, and most high-volume service.",
-   useFor:["Shaking (large cubes give best dilution control)","Built highballs and long drinks","Most everyday cocktails"],
-   avoidFor:["Rocks pours where minimal dilution is critical — use large cube or sphere","Drinks requiring specific visual ice presentation"],
-   glassware:["Highball","Collins","Rocks","Copper Mug","Most standard glassware"],
-   drinks:["Gin & Tonic","Whisky-Soda","Bloody Mary","Mojito (if no crushed available)"],
-   notes:[
-     {label:"Shaking",text:"Fill the tin two-thirds with cubes. Too full = poor tumble. Too sparse = under-dilution and insufficient chill."},
-     {label:"Building",text:"Add ice to the glass before the spirit to keep carbonation and avoid splash. Stir gently for mixed drinks."},
-     {label:"Never reuse",text:"Ice from shaking is chipped and will over-dilute the next drink immediately. Always use fresh cubes."},
-     {label:"Clarity",text:"Directional-freeze cube trays (True Cubes) produce clear ice that looks significantly better in the glass."}
-   ]
-  },
-  {id:"large",name:"Large / King Cube",dilution:"Slow",
-   description:"A single 5-6 cm cube. Reduced surface-area-to-volume ratio chills the drink while diluting it very slowly — the standard choice for spirit-forward rocks pours where dilution control is critical.",
-   useFor:["Neat or rocks pours of premium spirits","Stirred cocktails served over ice","When the ice is a deliberate visual feature"],
-   avoidFor:["Shaking — too large for even tumbling in a tin","Delicate or narrow-base glasses that risk cracking"],
-   glassware:["Rocks","Double Rocks","Snifter"],
-   drinks:["Old Fashioned","Negroni","Mezcal on the rocks","Vieux Carre","Scotch on the rocks"],
-   notes:[
-     {label:"Temper before service",text:"Let the cube sit at room temperature for 60-90 seconds. Cold glass + cold cube = thermal shock cracking."},
-     {label:"Pour-over temper",text:"Alternatively, pour a small splash of spirit over the cube first, wait 20 seconds, then build the drink. The spirit acts as a thermal buffer."},
-     {label:"Mold choice",text:"Use a silicone cube mold with filtered water. Fill slowly to minimise bubbles. Freeze at a stable temperature for maximum clarity."},
-     {label:"Glass check",text:"Always check the cube fits the glass before building the drink. Never force a cube into a glass."}
-   ]
-  },
-  {id:"none",name:"None / Up",dilution:"None (pre-chilled)",
-   description:"No ice in the final glass. The drink is chilled during preparation then strained into a clean, pre-chilled vessel. Temperature management is everything — without ice, there is no recovery.",
-   useFor:["Martinis and all up-served cocktails","Daiquiris, Sidecars, Manhattans","Any shaken or stirred drink served without ice"],
-   avoidFor:["Drinks that need ongoing chilling at the table","Any highball, long drink or tiki serve"],
-   glassware:["Coupe","Martini","Nick & Nora","Flute","Sour Glass"],
-   drinks:["Dry Martini","Daiquiri","Manhattan","Aviation","Cosmopolitan","Sidecar"],
-   notes:[
-     {label:"Pre-chill is mandatory",text:"10+ minutes in a freezer, or fill with ice water and tip out just before pouring. A warm glass warms a cocktail in under 2 minutes."},
-     {label:"Do not skip this step",text:"Serving an up cocktail in a room-temperature glass is the single most common quality failure in cocktail service."},
-     {label:"Double-strain shaken drinks",text:"Always use a fine strainer over the hawthorne to remove ice chips that melt on contact and rapidly over-dilute."},
-     {label:"Serve immediately",text:"Up cocktails warm faster than any other serve. The time between strain and table is part of the recipe."}
-   ]
-  },
-  {id:"pebble",name:"Pebble / Pellet",dilution:"Fast",
-   description:"Small, soft, rounded nuggets — fast-chilling, high-volume displacement, and satisfyingly chewable. A core tiki-service ice. Sometimes called Nugget or Sonic ice.",
-   useFor:["Tiki and tropical cocktails","Any drink where high ice-to-liquid ratio is part of the experience","Drinks where guests will chew or drink through the ice"],
-   avoidFor:["Spirit-forward rocks drinks where minimal dilution is required","Premium neat pours"],
-   glassware:["Tiki Mug","Hurricane","Collins","Copper Mug"],
-   drinks:["Mai Tai","Painkiller","Jungle Bird","Lemonade-style cocktails"],
-   notes:[
-     {label:"Machine investment",text:"Nugget ice machines (Scotsman, Manitowoc, Hoshizaki) are significant bar investments but define the tiki service experience."},
-     {label:"Pack tightly",text:"Pebble compresses significantly as the drink is built. Overfill and press down. The drink will settle into it."},
-     {label:"Guest experience",text:"Guests enjoy chewing it. It is a texture feature, not a defect — it absorbs syrups and juice and becomes part of the last third of the drink."},
-     {label:"No substitution",text:"Crushed ice is the closest alternative for tiki service. Standard cubes change the character of the drink significantly."}
-   ]
-  },
-  {id:"sphere",name:"Sphere",dilution:"Very Slow",
-   description:"A perfect sphere has the lowest surface-area-to-volume ratio of any ice shape — the slowest-melting form available. Primarily a premium presentation and spirits-service piece.",
-   useFor:["Premium spirit rocks pours","High-end stirred cocktail service","When the ice is the centrepiece of the presentation"],
-   avoidFor:["High-volume service — slow to produce and wasteful if cracked","Straight-sided or narrow glasses where it will not sit correctly"],
-   glassware:["Double Rocks","Rocks (wide-mouth)","Snifter"],
-   drinks:["Premium Scotch or Bourbon on the rocks","Mezcal serve","Negroni","Old Fashioned"],
-   notes:[
-     {label:"Temper before use",text:"A sphere in a room-temperature glass dropped with a direct pour will crack. The thermal differential is severe."},
-     {label:"Pour-over temper",text:"Pour a small amount of spirit (5-10 ml) over the sphere. Wait 30 seconds, swirl once, then add the full pour. The spirit tempers the surface gently."},
-     {label:"Mold choice",text:"Sphere press molds (Winco, Tovolo) give consistent results. Use filtered water. Freeze slowly and at a stable temperature."},
-     {label:"Clarity method",text:"Directional freeze from the bottom gives the clearest sphere. A silicone mold in an insulated container with the lid off achieves this."}
-   ]
-  },
-  {id:"spear",name:"Spear / Collins",dilution:"Slow-Medium",
-   description:"A long rectangular column shaped to fit the full height of a Collins or Highball glass. One piece, clean presentation, and slow-to-medium dilution. The professional choice for tall serves where visual ice matters.",
-   useFor:["Collins glasses and tall serves","Highballs where visual presentation is part of the service","Gin & Tonic for bar-standard plating"],
-   avoidFor:["Rocks glasses — wrong shape and proportion","Tiki or blended serves"],
-   glassware:["Collins","Highball"],
-   drinks:["Tom Collins","Gin & Tonic","Paloma","Vodka Soda","Pimm's Cup"],
-   notes:[
-     {label:"Measure the glass first",text:"The spear must fit a specific glass. Always verify the spear dimensions against the glass before committing to a mold type."},
-     {label:"Mold choice",text:"True Cubes Spear Trays produce 1-inch-wide Collins spears. Multiple sizes available for different glass formats."},
-     {label:"Insert before the spirit",text:"Place the spear in the glass before adding the spirit to avoid liquid splash and temperature shock to the ice."},
-     {label:"Volume displacement",text:"A single spear occupies significant glass volume. Adjust recipe yield to maintain the correct spirit-to-mixer ratio in the glass."}
-   ]
-  }
-];
-
-
-
-const SEED_GLASSWARE=[
-  {id:1,name:"Rocks",aka:"Old Fashioned / lowball",capacity:"200–300 ml",best_for:"Spirit-forward & on-the-rocks",
-   desc:"A sturdy, short tumbler with a heavy base. Built for stirring spirit-forward drinks over a single large cube."},
-  {id:2,name:"Double Rocks",aka:"DOF / double old fashioned",capacity:"350–450 ml",best_for:"Generous pours, large cubes or spheres",
-   desc:"Wider than a rocks glass. Makes space for a sphere or king cube and generous garnishing."},
-  {id:3,name:"Coupe",aka:"Champagne saucer",capacity:"150–210 ml",best_for:"Shaken & stirred drinks served up",
-   desc:"A stemmed, shallow bowl. The modern workhorse for 'up' cocktails — elegant and far less prone to spilling than a martini glass."},
-  {id:4,name:"Martini",aka:"Cocktail glass",capacity:"120–240 ml",best_for:"Martinis & Manhattans, up",
-   desc:"The iconic stemmed V. Striking on the bar but tippy — fill conservatively and carry with care."},
-  {id:5,name:"Nick & Nora",aka:"—",capacity:"120–180 ml",best_for:"Stirred drinks served up",
-   desc:"A small stemmed glass with a rounded bowl. The refined choice for a Manhattan or Martinez — holds aroma, resists spills."},
-  {id:6,name:"Highball",aka:"Tall tumbler",capacity:"240–350 ml",best_for:"Spirit + a single mixer",
-   desc:"A tall, straight glass that keeps fizz lively and the serve cold. Gin & tonic, Paloma, whisky-soda."},
-  {id:7,name:"Collins",aka:"Tall fizz glass",capacity:"300–410 ml",best_for:"Long drinks over crushed ice",
-   desc:"Taller and narrower than a highball, ideal for fizzes and churned drinks like the Mojito or Tom Collins."},
-  {id:8,name:"Hurricane",aka:"Tiki tulip",capacity:"440–590 ml",best_for:"Tropical & blended drinks",
-   desc:"A large curved tulip on a short foot. Made for showy, ice-packed tiki serves with plenty of garnish."},
-  {id:9,name:"Copper Mug",aka:"Mule mug",capacity:"350–500 ml",best_for:"Moscow & other Mules",
-   desc:"Insulating copper keeps the serve frosty and the ginger sharp. Traditional home of the Moscow Mule."},
-  {id:10,name:"Flute",aka:"Champagne flute",capacity:"150–200 ml",best_for:"Sparkling cocktails & Champagne",
-   desc:"A tall, narrow bowl that preserves bubbles. Best for Kir Royale, Bellini, Champagne cocktails."},
-  {id:11,name:"Wine Glass",aka:"White wine glass",capacity:"250–350 ml",best_for:"Spritzes & wine-based cocktails",
-   desc:"A wider bowl than a flute. Good for Aperol Spritz and other builds where you want aroma."},
-  {id:12,name:"Julep Cup",aka:"Mint julep cup",capacity:"300–400 ml",best_for:"Juleps over crushed ice",
-   desc:"A small silver or pewter cup. Frosts dramatically. The only vessel for a proper Mint Julep."},
-  {id:13,name:"Snifter",aka:"Brandy balloon",capacity:"200–600 ml",best_for:"Aged spirits & stirred-down cocktails",
-   desc:"A wide bowl that narrows at the top to concentrate aroma. Cradled in the hand to gently warm the spirit."},
-  {id:14,name:"Shot",aka:"Shooter",capacity:"30–60 ml",best_for:"Single shots & shooters",
-   desc:"Small, sturdy and direct. No dilution, no ceremony."}
-];
-
-const SEED_GARNISH=[
-  {name:"Citrus twist",placement:"Rim / expressed",tip:"Express oils over the drink first. Run the peel around the rim, then perch or drop."},
-  {name:"Citrus wheel",placement:"Rim / perched",tip:"Notch to sit on the rim. A lime wheel floats on crushed-ice drinks."},
-  {name:"Citrus wedge",placement:"Rim / dropped",tip:"Can be squeezed by the guest — signals it is there for a reason."},
-  {name:"Dehydrated citrus",placement:"Perched / floated",tip:"Prep in advance. Adds visual drama and dried-citrus aroma."},
-  {name:"Mint sprig",placement:"Rim bouquet",tip:"Slap between palms before serving to release volatile oils — aroma before the first sip."},
-  {name:"Mint bouquet",placement:"On crushed ice",tip:"5-8 sprigs tightly bunched. The nose sits in the mint throughout the drink."},
-  {name:"Herb sprig",placement:"Perched",tip:"Rosemary, thyme, sage. Torch briefly for smokiness if the drink calls for it."},
-  {name:"Edible flower",placement:"Floated",tip:"Float on the surface or tuck into ice. Must be food-grade."},
-  {name:"Salt rim",placement:"Full or half",tip:"Half-rim lets guests choose. Flaky sea salt for texture. Tajin for complexity."},
-  {name:"Sugar rim",placement:"Full rim",tip:"Dampen rim with citrus, dip in caster sugar. Sweetens the first sip."},
-  {name:"Cocktail cherry",placement:"Dropped / skewered",tip:"Luxardo or house-made. Never use bright-red commercial ones on a classic."},
-  {name:"Coffee beans (3)",placement:"Floated on foam",tip:"Float on Espresso Martini foam. Traditionally: health, wealth and happiness."},
-  {name:"Grated nutmeg",placement:"Dusted on top",tip:"Grate fresh over the drink. Goes with egg-white and creamy drinks."},
-  {name:"Cinnamon stick",placement:"Perched / stirrer",tip:"Can be torched briefly for a smoke effect before serving."},
-  {name:"Olive(s)",placement:"Dropped / skewered",tip:"One or three (never two). Brine-cured. Goes in a Martini or Dirty Martini."},
-  {name:"Pineapple frond",placement:"Tiki top",tip:"A full pineapple top adds height and fun to a tiki presentation."},
-  {name:"Cucumber ribbon",placement:"Inside / perched",tip:"Peel a long ribbon and curl it inside the glass before building the drink."},
-  {name:"Bitters art",placement:"On foam",tip:"Dot bitters on foam and drag a cocktail pick through — hearts, feathers, spirals."}
-];
-
-const SEED_ASSEMBLY=[
-  {id:"a1",name:"Build",summary:"Assemble directly in the serving glass.",
-   steps:["Add ice to the serving glass.","Pour ingredients in order — spirit first, modifier, then mixer.","Stir briefly. For carbonated toppers, stir minimally to preserve bubbles."],
-   tip:"For Old Fashioneds and highballs. Works when no aeration or heavy dilution is needed."},
-  {id:"a2",name:"Stir",summary:"Chill and dilute spirit-forward drinks with silk and clarity.",
-   steps:["Fill a mixing glass with ice.","Add all ingredients.","Stir smoothly with a bar spoon for 20-30 seconds until chilled.","Strain into the serving glass."],
-   tip:"If every ingredient is a spirit — Martini, Negroni, Manhattan — stir. Shaking clouds it and flattens the texture."},
-  {id:"a3",name:"Shake",summary:"Chill, dilute and aerate drinks containing juice, egg or dairy.",
-   steps:["Add all ingredients and ice to a shaker tin.","Seal and shake hard for 10-15 seconds until the tin is frosted.","Strain — double-strain if there is pulp or egg white."],
-   tip:"If it has citrus, juice, egg or cream, shake it. The aeration is part of the drink."},
-  {id:"a4",name:"Dry shake / Reverse dry shake",summary:"Build a stable, velvety foam from egg white.",
-   steps:["DRY: Add ingredients with egg white but NO ice. Shake hard 15 seconds to emulsify.","Add ice, shake again to chill.","REVERSE: Shake with ice first, strain, discard ice and re-shake without to build denser foam."],
-   tip:"Reverse dry shake gives a tighter, more stable foam. Use for Whiskey Sours and all egg-white drinks."},
-  {id:"a5",name:"Whip shake",summary:"Rapid chill over crushed ice for tiki-style drinks.",
-   steps:["Add ingredients and a small scoop of crushed ice to a shaker.","Whip-shake 3-4 fast strokes — just enough to chill and aerate.","Pour unstrained over fresh crushed ice."],
-   tip:"The crushed ice does the work. Do not over-shake or you will lose the aeration."},
-  {id:"a6",name:"Blend",summary:"Combine with ice in a blender for a frozen drink.",
-   steps:["Add all ingredients and measured ice to a blender.","Blend until smooth — start slow, then high speed.","Pour immediately into a chilled glass."],
-   tip:"Too much ice = watery; too little = slushy. Blend to thick but pourable."},
-  {id:"a7",name:"Throw",summary:"Aerate and chill by pouring between vessels from height.",
-   steps:["Measure ingredients into one tin.","Raise one tin high and pour into the lower tin in a long stream.","Repeat 4-6 times, lowering height each pass."],
-   tip:"More theatrical than functional. Aerates gently without the cloudiness of a shake."},
-  {id:"a8",name:"Roll",summary:"Gentle mixing by transferring between tins.",
-   steps:["Combine all ingredients in a tin with ice.","Pour back and forth between the tin and glass 4-6 times.","Strain and serve."],
-   tip:"Used for the Bloody Mary. Avoids frothy texture while distributing thick tomato juice evenly."},
-  {id:"a9",name:"Swizzle",summary:"Churn over crushed ice until the glass frosts.",
-   steps:["Fill the serving glass with crushed ice and add all ingredients.","Insert a swizzle stick and spin between palms to churn.","Continue until the outside of the glass frosts.","Top with fresh crushed ice and garnish."],
-   tip:"The frosted glass is your visual cue. Swizzling mixes and chills hard at once."},
-  {id:"a10",name:"Layer / Float",summary:"Stack visually distinct strata by liquid density.",
-   steps:["Start with the densest, sweetest liquid in the glass.","Rest a bar spoon curved-side up just above the surface.","Pour the next liquid slowly over the back of the spoon.","Repeat for each layer."],
-   tip:"More sugar = denser = sinks lower. Pour very slowly for the sharpest definition."},
-  {id:"a11",name:"Muddle",summary:"Press fresh ingredients to release oils, juice and aroma.",
-   steps:["Place fruit, herbs or sugar in the base of the glass or shaker.","Press firmly a few times with a muddler.","Stop once the aroma is released — do not pulverise."],
-   tip:"Press, do not shred. Over-muddling mint releases bitter, grassy notes from the stems."}
-];
-
-const SEED_PREP=[
-  {id:"p1",category:"Clarification",name:"Milk wash",
-   summary:"Strip solids for a clear, silky drink and round off harsh edges.",
-   steps:["Warm whole milk (do not boil).","Pour the acidic alcoholic mixture INTO the milk — never milk into acid.","The acid curdles milk proteins; they bind and trap solids.","Rest 10-15 minutes, then strain through a superbag, then a coffee filter.","Gravity-drain only — do not press the curds."],
-   ratio:"~1 part milk : 4 parts liquid mixture.",
-   caution:"Never reverse the pour order. Never squeeze the filter."},
-  {id:"p2",category:"Clarification",name:"Agar clarification",
-   summary:"Gel-filtration technique for crystal-clear results without milk.",
-   steps:["Hydrate agar at ~2 g/L (0.2%) — bloom in boiling water, whisk into the full liquid.","Cool until it sets into a firm gel.","Break the gel and gravity-drain through cloth or a fine superbag.","Faster: freeze the gel, thaw overnight — ice crystals rupture it and it drains cleanly."],
-   ratio:"2 g agar per 1 litre of liquid (0.2%).",
-   caution:"Never press — gravity only. Pressing forces through particles that destroy clarity."},
-  {id:"p3",category:"Infusion",name:"Freeze infusion (freeze-thaw)",
-   summary:"Use freezing to rupture cell walls and rapidly extract flavour.",
-   steps:["Pack flavouring and base spirit into a food-safe airtight container.","Fill near the brim — minimise headspace.","Freeze. Ice crystals rupture cell walls, ejecting volatile compounds into the spirit.","Thaw, fine-strain."],
-   ratio:"Start with 100-200 g flavouring per litre.",
-   caution:"Over-extracts FAST — test small batches and taste regularly. Use food-grade HDPE; if glass, leave a small headspace."},
-  {id:"p4",category:"Infusion",name:"Fat washing",
-   summary:"Carry savoury or fatty flavour into a spirit, then remove the fat.",
-   variants:[
-     {label:"Heavy / saturated fats (bacon, brown butter, ghee)",note:"Infuse warm 2-4 h. FREEZE until solid, then lift or skim the fat cap — clean, easy removal. Use 15-30 ml fat per 750 ml spirit. Bold, savoury aromas."},
-     {label:"Light / delicate fats (olive oil, nut oils, Parmesan)",note:"Subtler aromas, harder removal — mostly stay liquid when chilled. Freeze very cold (at or below -18C) and skim, or fine-strain repeatedly. Use more fat and longer infusion. For Parmesan: warm-render the rind first, then freeze-strain."}
-   ],
-   caution:"Nut and olive oils can go rancid — use fresh fat, refrigerate the washed spirit. Over-infusion turns soapy."},
-  {id:"p5",category:"Syrups",name:"Syrups (reference)",
-   summary:"The foundation sweeteners for cocktail balance.",
-   steps:["Simple 1:1 — equal parts sugar and hot water. Dissolve, cool, bottle.","Rich 2:1 — 2 parts sugar to 1 part water. Thicker, longer shelf life.","Demerara 2:1 — same ratio with demerara for caramel notes.","Honey syrup 3:1 — 3 parts honey to 1 part warm water."],
-   tip:"1:1 keeps about 2 weeks refrigerated; 2:1 a month or more. A splash of high-proof spirit extends shelf life."},
-  {id:"p6",category:"Mise en place",name:"Citrus super juice (Nickle Morris method)",
-   summary:"Extend citrus 6x using peel oils and food-grade acids.",
-   steps:["LIME: Blend peeled rinds with food-grade acid (citric:malic ~ 2:1 by weight) until total acid equals peel weight.","Add reserved fresh juice + water to reach 6x the original lime weight.","Strain through a fine sieve.","LEMON: Use 100% citric acid instead of the blend.","Use 1:1 in place of fresh juice."],
-   caution:"Ratios are approximate — verify against your trusted source before scaling."},
-  {id:"p7",category:"Mise en place",name:"Commercial acid solutions",
-   summary:"Replace citrus acidity entirely with diluted food-grade acids.",
-   steps:["6% citric: 60 g citric acid per 1 L water. Mimics lemon/lime acidity.","Malic: apple and green-grape tartness.","Lactic: milky, round acidity — good for creamy drinks.","Tartaric: grape-like tartness for wine-forward cocktails.","Phosphoric: cola-like dry bite.","Dose to taste in place of fresh juice acidity."],
-   caution:"Acid solutions are purely acidic with no sugar or body — balance separately."}
-];
-
-/* ============================================================
-   GLASS LINE-ART SVGs
-   ============================================================ */
-const GLASS_ART={
-  "Rocks":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M16 26H48L44 78H20Z"/><line x1="21" y1="46" x2="43" y2="46" opacity=".4"/></svg>`,
-  "Double Rocks":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 24H51L46 80H18Z"/><line x1="19" y1="46" x2="45" y2="46" opacity=".4"/></svg>`,
-  "Coupe":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 32Q32 58 51 32Z"/><line x1="32" y1="57" x2="32" y2="80"/><line x1="22" y1="82" x2="42" y2="82"/></svg>`,
-  "Martini":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 30H52L32 58Z"/><line x1="32" y1="58" x2="32" y2="80"/><line x1="22" y1="82" x2="42" y2="82"/></svg>`,
-  "Nick & Nora":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 34C18 50 46 50 46 34Q46 31 43 31H21Q18 31 18 34Z"/><line x1="32" y1="50" x2="32" y2="80"/><line x1="23" y1="82" x2="41" y2="82"/></svg>`,
-  "Highball":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M22 20H42V80H22Z"/><line x1="22" y1="40" x2="42" y2="40" opacity=".4"/></svg>`,
-  "Collins":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M24 14H40V82H24Z"/><line x1="24" y1="36" x2="40" y2="36" opacity=".4"/></svg>`,
-  "Hurricane":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 24C16 42 22 58 28 72H36C42 58 48 42 42 24Z"/><line x1="26" y1="78" x2="38" y2="78"/><line x1="24" y1="84" x2="40" y2="84"/></svg>`,
-  "Copper Mug":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 28H42V76H18Z"/><path d="M42 38C56 38 56 64 42 64"/></svg>`,
-  "Flute":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M26 20C24 36 24 54 28 72H36C40 54 40 36 38 20Z"/><line x1="32" y1="72" x2="32" y2="82"/><line x1="24" y1="84" x2="40" y2="84"/></svg>`,
-  "Wine Glass":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 22C16 44 48 44 48 22Z"/><line x1="32" y1="44" x2="32" y2="80"/><line x1="22" y1="82" x2="42" y2="82"/></svg>`,
-  "Julep Cup":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 26H44L42 78H22Z"/><line x1="22" y1="44" x2="42" y2="44" opacity=".4"/></svg>`,
-  "Snifter":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 28C14 52 50 52 50 28Z"/><path d="M30 52C28 62 26 70 26 78H38C38 70 36 62 34 52"/><line x1="22" y1="80" x2="42" y2="80"/></svg>`,
-  "Shot":`<svg viewBox="0 0 64 96" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M25 36H39L37 72H27Z"/></svg>`
-};
-function glassArt(name){return GLASS_ART[name]||GLASS_ART["Coupe"];}
-
-/* ============================================================
-   STATE + HELPERS
-   ============================================================ */
-const state={
-  recipes:[],glassware:[],filter:"All",ffilter:null,groupBy:"none",q:"",
-  unit:"ml",preciseOz:false,theme:"dark",favs:new Set(),
-  activeIce:"block"
-};
-const $=(s,r=document)=>r.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const SPIRIT_ORDER=["All","Whiskey","Gin","Rum","Tequila","Vodka","Brandy","Aperitivo","Wine","Other"];
-
-/* ── Unit conversion ─────────────────────────────────────── */
-function ozMl(){return state.preciseOz?29.5735:30;}
-function displayQty(qStr){
-  if(state.unit==="ml") return qStr;
-  const m=String(qStr).match(/^([\d.]+)\s*ml$/i);
-  if(!m) return qStr;
-  const oz=parseFloat(m[1])/ozMl();
-  const r=Math.round(oz*8)/8,w=Math.floor(r),f=r-w;
-  const fm={0:"",0.125:"⅛",0.25:"¼",0.375:"⅜",0.5:"½",0.625:"⅝",0.75:"¾",0.875:"⅞"};
-  const fs=fm[f]!==undefined?fm[f]:f.toFixed(2).replace(/^0/,"");
-  return (w?w+" ":"")+(fs||(!w?"0":""))+" oz";
-}
-
-/* ============================================================
-   RENDERERS — RECIPES
-   ============================================================ */
-function renderChips(){
-  const bases=SPIRIT_ORDER.filter(b=>b==="All"||state.recipes.some(r=>r.base===b));
-  $("#chips").innerHTML=bases.map(b=>
-    `<button class="chip ${b===state.filter?"on":""}" data-f="${esc(b)}">${esc(b)}</button>`
-  ).join("");
-}
-
-function renderFlavourChips(){
-  const usedTags=new Set(state.recipes.flatMap(r=>r.flavours||[]));
-  const tags=FLAVOUR_TAGS.filter(t=>usedTags.has(t));
-  $("#fchips").innerHTML=tags.map(t=>
-    `<button class="fchip ${t===state.ffilter?"on":""}" data-ft="${esc(t)}">${esc(t)}</button>`
-  ).join("");
-}
-
-function filtered(){
-  const q=state.q.trim().toLowerCase();
-  return state.recipes.filter(r=>{
-    if(state.filter!=="All"&&r.base!==state.filter) return false;
-    if(state.ffilter&&!(r.flavours||[]).includes(state.ffilter)) return false;
-    if(!q) return true;
-    if(r.name.toLowerCase().includes(q)) return true;
-    return (r.ingredients||[]).some(i=>i.n.toLowerCase().includes(q));
-  });
-}
-
-function getGroupKey(r){
-  if(state.groupBy==="base") return r.base;
-  if(state.groupBy==="method") return r.method;
-  if(state.groupBy==="flavour"){
-    const primaryTag=(r.flavours||[])[0];
-    return FLAVOUR_GROUP[primaryTag]||"Other";
-  }
-  return null;
-}
-
-function cardHtml(r){
-  const fTags=(r.flavours||[]).slice(0,3).map(f=>`<span class="ftag">${esc(f)}</span>`).join("");
-  return `<button class="card" data-id="${r.id}">
-    <span class="ab"></span>
-    <h3>${esc(r.name)}</h3>
-    <div class="meta"><b>${esc(r.base)}</b><span class="sep"></span>${esc(r.method)}<span class="sep"></span>${esc(r.glass)}</div>
-    ${fTags?`<div class="ftags">${fTags}</div>`:""}
-  </button>`;
-}
-
-function renderList(){
-  const items=filtered();
-  $("#count").textContent=items.length+(items.length===1?" recipe":" recipes");
-  if(!items.length){$("#list").innerHTML=`<div class="empty">No drinks match.<br>Try a different filter or search term.</div>`;return;}
-  if(state.groupBy==="none"){
-    $("#list").innerHTML=items.map(cardHtml).join("");
-    return;
-  }
-  /* Grouped rendering */
-  const groups=new Map();
-  items.forEach(r=>{
-    const key=getGroupKey(r);
-    if(!groups.has(key)) groups.set(key,[]);
-    groups.get(key).push(r);
-  });
-  const ORDER_MAP={
-    "Spirit-forward":0,"Bitter / Herbal":1,"Sour / Citrus":2,
-    "Sweet / Creamy":3,"Refreshing / Long":4,"Tropical":5,"Other":99
-  };
-  const sorted=[...groups.entries()].sort((a,b)=>{
-    const oa=ORDER_MAP[a[0]]??50,ob=ORDER_MAP[b[0]]??50;
-    return oa!==ob?oa-ob:a[0].localeCompare(b[0]);
-  });
-  $("#list").innerHTML=sorted.map(([key,rs])=>
-    `<div class="grp-head">${esc(key)} <span style="color:var(--muted);font-weight:400">(${rs.length})</span></div>`+rs.map(cardHtml).join("")
-  ).join("");
-}
-
-function renderDetail(id){
-  const r=state.recipes.find(x=>String(x.id)===String(id));
-  if(!r) return;
-  const isFav=state.favs.has(String(id));
-  const poly=isFav?"currentColor":"none";
-  const fTagsHtml=(r.flavours||[]).map(f=>`<span class="d-ftag">${esc(f)}</span>`).join("");
-  $("#detail").innerHTML=`
-    <button class="back" id="back"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>All recipes</button>
-    <div class="d-head">
-      <div class="d-title">${esc(r.name)}</div>
-      <div class="d-actions">
-        <button class="fav-btn ${isFav?"on":""}" id="fav-btn" data-id="${id}">
-          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="${poly}"/></svg>
-        </button>
-        <div class="d-glassart">${glassArt(r.glass)}</div>
-      </div>
-    </div>
-    <div class="d-profile">${esc(r.profile)}</div>
-    ${fTagsHtml?`<div class="d-flavours">${fTagsHtml}</div>`:""}
-    <div class="tags">
-      <span class="tag"><b>Base</b> ${esc(r.base)}</span>
-      <span class="tag"><b>Method</b> ${esc(r.method)}</span>
-      <span class="tag"><b>Glass</b> ${esc(r.glass)}</span>
-      <span class="tag"><b>Served</b> ${esc(r.served)}</span>
-    </div>
-    <div class="section-label">Ingredients
-      <button class="unit-inline" id="unit-inline-btn">${state.unit.toUpperCase()}</button>
-    </div>
-    <div id="ing-list">${(r.ingredients||[]).map(i=>`<div class="ing"><span class="q">${esc(displayQty(i.q))}</span><span class="n">${esc(i.n)}</span></div>`).join("")}</div>
-    <div class="section-label">Method</div>
-    <div>${(r.steps||[]).map((s,i)=>`<div class="step"><span class="num">${i+1}</span><p>${esc(s)}</p></div>`).join("")}</div>
-    <div class="section-label">Garnish</div>
-    <div class="note" style="margin-bottom:16px">${esc(r.garnish)}</div>
-    <div class="section-label">FlavorGraph</div>
-    <div class="fg-block" id="fg-suggest"></div>
-    <div class="section-label">Notes</div>
-    <div class="note"><b>${esc(r.name)}.</b> ${esc(r.notes)}</div>
-  `;
-  $("#back").addEventListener("click",()=>go("recipes"));
-  $("#fav-btn").addEventListener("click",e=>{
-    const fid=String(e.currentTarget.dataset.id);
-    state.favs.has(fid)?state.favs.delete(fid):state.favs.add(fid);
-    const on=state.favs.has(fid);
-    e.currentTarget.classList.toggle("on",on);
-    e.currentTarget.querySelector("polygon").setAttribute("fill",on?"currentColor":"none");
-  });
-  /* Inline unit toggle on the ingredient section label */
-  $("#unit-inline-btn").addEventListener("click",()=>{
-    applyUnit(state.unit==="ml"?"oz":"ml");
-    /* Re-render just the ingredient quantities */
-    const ingList=document.getElementById("ing-list");
-    if(ingList) ingList.innerHTML=(r.ingredients||[]).map(i=>`<div class="ing"><span class="q">${esc(displayQty(i.q))}</span><span class="n">${esc(i.n)}</span></div>`).join("");
-    const btn=document.getElementById("unit-inline-btn");
-    if(btn) btn.textContent=state.unit.toUpperCase();
-  });
-  $("#detail").scrollTop=0;
-  populateFlavorGraph(r);
-}
-
-/* ── FlavorGraph: suggestions inside a recipe ────────────── */
-function fgChip(x){
-  return `<span class="fg-chip" data-fg="${esc(x.display_name)}" title="pairing strength ${x.score}">${esc(x.display_name)}</span>`;
-}
-async function populateFlavorGraph(r){
-  const host=document.getElementById("fg-suggest");
-  if(!host) return;
-  if(!FG.enabled()){
-    host.innerHTML=`<div class="fg-hint">Add your Supabase URL + anon key (top of the script) and run <b>flavorgraph/flavorgraph-schema.sql</b> to switch on FlavorGraph pairings.</div>`;
-    return;
-  }
-  const ings=(r.ingredients||[]).map(i=>i.n);
-  host.innerHTML=`<div class="fg-hint">Reading the flavour graph…</div>`;
-  try{
-    const [garn,mod,tags]=await Promise.all([
-      FG.pair(ings,"garnish",ings,8),
-      FG.pair(ings,"modifier",ings,8),
-      FG.tags(ings,4)
-    ]);
-    host.innerHTML=
-      (tags&&tags.length?`<div class="fg-row"><span class="fg-label">Flavour profile (auto)</span><div class="fg-chips">${tags.map(t=>`<span class="d-ftag">${esc(t)}</span>`).join("")}</div></div>`:"")+
-      (garn&&garn.length?`<div class="fg-row"><span class="fg-label">Garnish ideas</span><div class="fg-chips">${garn.map(fgChip).join("")}</div></div>`:"")+
-      (mod&&mod.length?`<div class="fg-row"><span class="fg-label">Modifiers that pair</span><div class="fg-chips">${mod.map(fgChip).join("")}</div></div>`:"")+
-      `<button class="fg-twist-btn" id="fg-twist">Suggest a twist</button>`+
-      `<div id="fg-twist-out"></div>`+
-      `<div class="fg-credit">Pairings via FlavorGraph · Park et al., Scientific Reports (2021)</div>`;
-    const tb=document.getElementById("fg-twist");
-    if(tb) tb.addEventListener("click",async()=>{
-      tb.disabled=true; tb.textContent="Thinking…";
-      try{
-        const tw=await FG.pair(ings,"twist",ings,6);
-        document.getElementById("fg-twist-out").innerHTML=
-          tw.length?`<div class="fg-row"><span class="fg-label">A twist might add</span><div class="fg-chips">${tw.map(fgChip).join("")}</div></div>`
-                   :`<div class="fg-hint">No strong twist suggestions for this one.</div>`;
-      }catch(e){ document.getElementById("fg-twist-out").innerHTML=`<div class="fg-hint">Couldn't reach the pairing service.</div>`; }
-      tb.textContent="Suggest a twist"; tb.disabled=false;
-    });
-  }catch(e){
-    host.innerHTML=`<div class="fg-hint">FlavorGraph pairing is unavailable right now. The app still works on bundled data.</div>`;
-  }
-}
-
-/* ── FlavorGraph: standalone pairing explorer ────────────── */
-let fgExploreTimer;
-function fgExplore(term){
-  const out=$("#fg-explore");
-  if(!out) return;
-  if(!FG.enabled()){ out.innerHTML=`<div class="empty">FlavorGraph isn't connected yet.<br>See <b>flavorgraph/README</b> to switch it on.</div>`; return; }
-  if(!term||!term.trim()){ out.innerHTML=`<div class="empty">Type an ingredient to see what it pairs with.</div>`; return; }
-  out.innerHTML=`<div class="fg-hint">Searching the flavour graph…</div>`;
-  FG.pair([term],"explore",[],20).then(rows=>{
-    if(!rows||!rows.length){ out.innerHTML=`<div class="empty">Nothing found for “${esc(term)}”.<br>Try a simpler word — “lime”, not “lime cordial”.</div>`; return; }
-    out.innerHTML=`<div class="fg-explore-head">Pairs well with</div>`+
-      `<div class="fg-chips fg-explore-grid">${rows.map(x=>`<span class="fg-chip" data-fg="${esc(x.display_name)}" title="strength ${x.score}">${esc(x.display_name)}<small>${esc(x.role||"")}</small></span>`).join("")}</div>`+
-      `<div class="fg-credit">Pairings via FlavorGraph · Park et al., Scientific Reports (2021)</div>`;
-  }).catch(()=>{ out.innerHTML=`<div class="empty">Pairing service unavailable right now.</div>`; });
-}
-
-/* ── Glassware ───────────────────────────────────────────── */
-function renderGlassware(){
-  $("#glasslist").innerHTML=state.glassware.map(g=>`
-    <div class="lib-card">
-      <div class="lib-art">${glassArt(g.name)}</div>
-      <div style="flex:1;min-width:0">
-        <h3>${esc(g.name)}</h3>
-        <div class="aka">${g.aka&&g.aka!=="—"?"Also: "+esc(g.aka):"&nbsp;"}</div>
-        <p>${esc(g.desc)}</p>
-        <div class="mr"><b>Best for</b> ${esc(g.best_for)}</div>
-        <div class="cap">${esc(g.capacity)}</div>
-      </div>
-    </div>`).join("");
-}
-
-/* ── Ice — large-format swipeable detail cards ───────────── */
-function renderIceSelector(){
-  const sel=$("#ice-selector");
-  sel.innerHTML=ICE_DATA.map(ic=>
-    `<button class="ice-pill ${ic.id===state.activeIce?"on":""}" data-ice="${ic.id}">${esc(ic.name)}</button>`
-  ).join("");
-}
-
-function renderIceDetail(){
-  const ic=ICE_DATA.find(x=>x.id===state.activeIce);
-  if(!ic){$("#ice-detail").innerHTML="";return;}
-  const useHtml=ic.useFor.map(u=>`<li>${esc(u)}</li>`).join("");
-  const avoidHtml=ic.avoidFor.map(u=>`<li>${esc(u)}</li>`).join("");
-  const glassHtml=ic.glassware.map(g=>`<span class="ice-chip-item">${esc(g)}</span>`).join("");
-  const drinksHtml=ic.drinks.map(d=>`<span class="ice-chip-item">${esc(d)}</span>`).join("");
-  const notesHtml=ic.notes.map(n=>`<div class="ice-note-item"><b>${esc(n.label)}</b> ${esc(n.text)}</div>`).join("");
-  const svg=ICE_SVG[ic.id]||"";
-  $("#ice-detail").innerHTML=`
-    <div class="ice-detail-card">
-      <div class="ice-big-art">${svg}</div>
-      <div class="ice-detail-body">
-        <div class="ice-name">${esc(ic.name)}</div>
-        <div class="ice-dil-badge">
-          <span class="ice-dil-label">Dilution</span>
-          <span class="ice-dil-val">${esc(ic.dilution)}</span>
-        </div>
-        <div class="ice-desc">${esc(ic.description)}</div>
-        <div class="ice-section">
-          <div class="ice-section-label">Use for</div>
-          <ul class="ice-list">${useHtml}</ul>
-        </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Avoid for</div>
-          <ul class="ice-list avoid">${avoidHtml}</ul>
-        </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Compatible glassware</div>
-          <div class="ice-chips-row">${glassHtml}</div>
-        </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Classic drinks</div>
-          <div class="ice-chips-row">${drinksHtml}</div>
-        </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Service notes</div>
-          <div class="ice-notes">${notesHtml}</div>
-        </div>
-      </div>
-    </div>`;
-}
-
-function renderIce(){renderIceSelector();renderIceDetail();}
-
-/* ── Prep / Assembly ─────────────────────────────────────── */
-function renderPrep(){
-  const cats=["Clarification","Infusion","Syrups","Mise en place"];
-  let html="";
-  cats.forEach(cat=>{
-    const items=SEED_PREP.filter(t=>t.category===cat);
-    if(!items.length) return;
-    html+=`<div class="tcat">${esc(cat)}</div>`;
-    items.forEach(t=>{
-      const varHtml=t.variants?t.variants.map(v=>`<div class="variant-tag">${esc(v.label)}</div><p style="font-size:13px;color:var(--muted);line-height:1.5;margin:5px 0 10px">${esc(v.note)}</p>`).join(""):"";
-      const stepsHtml=t.steps?`<div class="how">${t.steps.map((s,i)=>`<div class="step"><span class="num">${i+1}</span><p>${esc(s)}</p></div>`).join("")}</div>`:"";
-      const ratioHtml=t.ratio?`<p style="margin-top:8px;font-size:12.5px;color:var(--accent);font-weight:600">Ratio: ${esc(t.ratio)}</p>`:"";
-      const warnHtml=t.caution?`<div class="tip" style="margin-top:8px"><b>Caution</b> ${esc(t.caution)}</div>`:"";
-      const tipHtml=t.tip?`<div class="tip" style="margin-top:8px"><b>Tip</b> ${esc(t.tip)}</div>`:"";
-      html+=`<div class="tcard"><h3>${esc(t.name)}</h3><div class="sum">${esc(t.summary)}</div>${varHtml}<details><summary>Steps &amp; ratios</summary>${stepsHtml}${ratioHtml}${warnHtml}${tipHtml}</details></div>`;
-    });
-  });
-  $("#preplist").innerHTML=html;
-}
-
-function renderAssembly(){
-  $("#assemblylist").innerHTML=SEED_ASSEMBLY.map(t=>`
-    <div class="tcard">
-      <h3>${esc(t.name)}</h3><div class="sum">${esc(t.summary)}</div>
-      <details><summary>How to</summary>
-        <div class="how">${t.steps.map((s,i)=>`<div class="step"><span class="num">${i+1}</span><p>${esc(s)}</p></div>`).join("")}</div>
-        <div class="tip"><b>When to use</b> ${esc(t.tip)}</div>
-      </details>
-    </div>`).join("");
-}
-
-/* ── Garnish ─────────────────────────────────────────────── */
-function renderGarnish(){
-  $("#garnishlist").innerHTML=`<div class="garn-grid">`+SEED_GARNISH.map(g=>`
-    <div class="garn-card">
-      <h4>${esc(g.name)}</h4>
-      <div class="place">${esc(g.placement)}</div>
-      <div class="tip">${esc(g.tip)}</div>
-    </div>`).join("")+`</div>`;
-}
-
-/* ── Favourites ──────────────────────────────────────────── */
-function renderFavourites(){
-  const favs=state.recipes.filter(r=>state.favs.has(String(r.id)));
-  if(!favs.length){$("#favlist").innerHTML=`<div class="fav-empty">No favourites yet.<br>Tap ★ on any recipe to save it here.</div>`;return;}
-  $("#favlist").innerHTML=favs.map(cardHtml).join("");
-}
-
-/* ── Conversions ─────────────────────────────────────────── */
-const BAR_UNITS=[
-  {id:"ml",label:"ml — millilitres",ml:1},{id:"cl",label:"cl — centilitres",ml:10},
-  {id:"oz",label:"oz — fluid ounce",ml:null},{id:"bsp",label:"bsp — barspoon",ml:5},
-  {id:"tsp",label:"tsp — teaspoon",ml:5},{id:"tbsp",label:"tbsp — tablespoon",ml:15},
-  {id:"dash",label:"dash",ml:0.8},{id:"drop",label:"drop",ml:0.05}
-];
-const VOL_UNITS=[
-  {id:"ml",label:"ml",f:1},{id:"l",label:"L",f:1000},{id:"floz",label:"fl oz (US)",f:29.5735},
-  {id:"cup",label:"cup",f:236.588},{id:"pint",label:"pint (US)",f:473.176},
-  {id:"quart",label:"quart",f:946.353},{id:"gallon",label:"gallon (US)",f:3785.41}
-];
-const WT_UNITS=[
-  {id:"g",label:"g — grams",f:1},{id:"kg",label:"kg",f:1000},
-  {id:"oz_w",label:"oz (weight)",f:28.3495},{id:"lb",label:"lb",f:453.592}
-];
-function barUnitMl(id){const u=BAR_UNITS.find(x=>x.id===id);return u?(u.ml!==null?u.ml:ozMl()):1;}
-function fmtNum(n){return parseFloat(n.toPrecision(6)).toString();}
-
-function initConversions(){
-  const bf=$("#bar-from"),bt=$("#bar-to"),vf=$("#vol-from"),vt=$("#vol-to"),wf=$("#wt-from"),wto=$("#wt-to");
-  BAR_UNITS.forEach(u=>{bf.innerHTML+=`<option value="${u.id}">${u.label}</option>`;bt.innerHTML+=`<option value="${u.id}">${u.label}</option>`;});
-  bt.value="oz";
-  VOL_UNITS.forEach(u=>{vf.innerHTML+=`<option value="${u.id}">${u.label}</option>`;vt.innerHTML+=`<option value="${u.id}">${u.label}</option>`;});
-  vt.value="floz";
-  WT_UNITS.forEach(u=>{wf.innerHTML+=`<option value="${u.id}">${u.label}</option>`;wto.innerHTML+=`<option value="${u.id}">${u.label}</option>`;});
-  wto.value="oz_w";
-  function calcBar(){const v=parseFloat($("#bar-val").value)||0,to=$("#bar-to").value;$("#bar-out").textContent=fmtNum(v*barUnitMl($("#bar-from").value)/barUnitMl(to));$("#bar-lbl").textContent=BAR_UNITS.find(u=>u.id===to).label;}
-  function calcVol(){const v=parseFloat($("#vol-val").value)||0,fu=VOL_UNITS.find(u=>u.id===$("#vol-from").value),tu=VOL_UNITS.find(u=>u.id===$("#vol-to").value);$("#vol-out").textContent=fmtNum(v*fu.f/tu.f);$("#vol-lbl").textContent=tu.label;}
-  function calcWt(){const v=parseFloat($("#wt-val").value)||0,fu=WT_UNITS.find(u=>u.id===wf.value),tu=WT_UNITS.find(u=>u.id===wto.value);$("#wt-out").textContent=fmtNum(v*fu.f/tu.f);$("#wt-lbl").textContent=tu.label;}
-  function calcTemp(){const v=parseFloat($("#temp-val").value)||0,fr=$("#temp-from").value,to=$("#temp-to").value,res=fr===to?v:fr==="c"?v*9/5+32:(v-32)*5/9;$("#temp-out").textContent=fmtNum(res);$("#temp-lbl").textContent=to==="f"?"Fahrenheit":"Celsius";}
-  $("#bar-val").addEventListener("input",calcBar);$("#bar-from").addEventListener("change",calcBar);$("#bar-to").addEventListener("change",calcBar);
-  $("#vol-val").addEventListener("input",calcVol);vf.addEventListener("change",calcVol);vt.addEventListener("change",calcVol);
-  $("#wt-val").addEventListener("input",calcWt);wf.addEventListener("change",calcWt);wto.addEventListener("change",calcWt);
-  $("#temp-val").addEventListener("input",calcTemp);$("#temp-from").addEventListener("change",calcTemp);$("#temp-to").addEventListener("change",calcTemp);
-  document.querySelectorAll(".conv-tab").forEach(btn=>btn.addEventListener("click",()=>{
-    document.querySelectorAll(".conv-tab").forEach(b=>b.classList.remove("on"));
-    document.querySelectorAll(".conv-panel").forEach(p=>p.classList.remove("on"));
-    btn.classList.add("on");$("#"+btn.dataset.cp).classList.add("on");
-  }));
-  $("#precise-oz-btn").addEventListener("click",()=>{state.preciseOz=!state.preciseOz;syncPreciseOzUI();calcBar();});
-  calcBar();calcVol();calcWt();calcTemp();
-}
-function syncPreciseOzUI(){
-  const on=state.preciseOz;
-  $("#precise-oz-btn")&&($("#precise-oz-btn").classList.toggle("on",on));
-  $("#precise-oz-settings")&&($("#precise-oz-settings").classList.toggle("on",on));
-}
-
-/* ── Theme + unit ────────────────────────────────────────── */
-const MOON_PATH=`<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>`;
-const SUN_PATH=`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>`;
-
-function applyTheme(t){
-  state.theme=t;
-  document.documentElement.dataset.theme=t;
-  const dark=t==="dark";
-  const meta=document.querySelector("#theme-color-meta");
-  if(meta) meta.content=dark?"#1B1D1F":"#F4EFE6";
-  /* Update knob icon: moon when dark (switch to light), sun when light (switch to dark) */
-  const icon=document.querySelector("#theme-icon");
-  if(icon) icon.innerHTML=dark?MOON_PATH:SUN_PATH;
-  if($("#dark-toggle")) $("#dark-toggle").classList.toggle("on",dark);
-}
-
-function applyUnit(u){
-  state.unit=u;
-  $("#unit-toggle-btn").textContent=u.toUpperCase();
-  if($("#unit-toggle-settings")) $("#unit-toggle-settings").classList.toggle("on",u==="oz");
-}
-
-/* ── Navigation ──────────────────────────────────────────── */
-function go(view){
-  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===view));
-  document.querySelectorAll("#nav button[data-go]").forEach(b=>
-    b.classList.toggle("on",b.dataset.go===view||(view==="detail"&&b.dataset.go==="recipes"))
-  );
-  if(view==="favourites") renderFavourites();
-  if(view==="pairings") fgExplore($("#fg-q")?$("#fg-q").value:"");
-}
-
-/* ── Events ──────────────────────────────────────────────── */
-$("#nav").addEventListener("click",e=>{const b=e.target.closest("button[data-go]");if(b) go(b.dataset.go);});
-
-/* Spirit chips */
-$("#chips").addEventListener("click",e=>{
-  const c=e.target.closest(".chip");if(!c) return;
-  state.filter=c.dataset.f;renderChips();renderList();
-});
-
-/* Flavour chips */
-$("#fchips").addEventListener("click",e=>{
-  const c=e.target.closest(".fchip");if(!c) return;
-  state.ffilter=state.ffilter===c.dataset.ft?null:c.dataset.ft;
-  renderFlavourChips();renderList();
-});
-
-/* Group-by selector */
-document.querySelectorAll(".grp-btn").forEach(btn=>btn.addEventListener("click",()=>{
-  document.querySelectorAll(".grp-btn").forEach(b=>b.classList.remove("on"));
-  btn.classList.add("on");
-  state.groupBy=btn.dataset.grp;
-  renderList();
-}));
-
-/* Recipe list click */
-$("#list").addEventListener("click",e=>{
-  const c=e.target.closest(".card");if(!c) return;
-  $("#detail").dataset.activeId=c.dataset.id;renderDetail(c.dataset.id);go("detail");
-});
-
-/* Favourites list click */
-document.addEventListener("click",e=>{
-  /* Favs list card click */
-  const fc=e.target.closest("#favlist .card");
-  if(fc){$("#detail").dataset.activeId=fc.dataset.id;renderDetail(fc.dataset.id);go("detail");}
-  /* Settings toggles */
-  if(e.target.id==="dark-toggle") applyTheme(state.theme==="dark"?"light":"dark");
-  if(e.target.id==="unit-toggle-settings") applyUnit(state.unit==="ml"?"oz":"ml");
-  if(e.target.id==="precise-oz-settings"){state.preciseOz=!state.preciseOz;syncPreciseOzUI();}
-});
-
-/* Ice selector */
-document.addEventListener("click",e=>{
-  const pill=e.target.closest(".ice-pill");
-  if(!pill) return;
-  state.activeIce=pill.dataset.ice;
-  renderIceSelector();renderIceDetail();
-  /* Scroll new card into view */
-  const det=$("#ice-detail");
-  if(det) det.scrollIntoView({behavior:"smooth",block:"nearest"});
-});
-
-/* Search */
-$("#q").addEventListener("input",e=>{state.q=e.target.value;renderList();});
-
-/* FlavorGraph explorer search (debounced) */
-$("#fg-q").addEventListener("input",e=>{
-  clearTimeout(fgExploreTimer);
-  const v=e.target.value;
-  fgExploreTimer=setTimeout(()=>fgExplore(v),250);
-});
-
-/* Click any pairing chip -> open the explorer on that ingredient */
-document.addEventListener("click",e=>{
-  const chip=e.target.closest(".fg-chip");
-  if(!chip||!chip.dataset.fg) return;
-  const term=chip.dataset.fg;
-  const box=$("#fg-q"); if(box) box.value=term;
-  go("pairings");
-  fgExplore(term);
-});
-
-/* Theme toggle */
-$("#theme-btn").addEventListener("click",()=>applyTheme(state.theme==="dark"?"light":"dark"));
-
-/* Unit toggle (topbar) */
-$("#unit-toggle-btn").addEventListener("click",()=>{
-  applyUnit(state.unit==="ml"?"oz":"ml");
-  const d=$("#detail");
-  if(d.classList.contains("active")&&d.dataset.activeId) renderDetail(d.dataset.activeId);
-});
-
-/* ── Init ────────────────────────────────────────────────── */
-(async function init(){
-  applyTheme("dark");
-  initConversions();
-  const data=await loadData();
-  state.recipes=data.recipes;
-  state.glassware=data.glassware;
-  renderChips();
-  renderFlavourChips();
-  renderList();
-  renderGlassware();
-  renderIce();
-  renderPrep();
-  renderAssembly();
-  renderGarnish();
-  const src=document.getElementById("datasrc");
-  if(src) src.innerHTML=`<span class="pill"></span><span>Source: ${esc(data.source)} · ${state.recipes.length} recipes, ${state.glassware.length} glasses</span>`;
-})();
-
-</script>
-
 </body>
 </html>
