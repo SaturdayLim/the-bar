@@ -4,36 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bar-Lab — Cocktail &amp; Flavour Tools</title>
-
+<!--
+  LANDING PAGE — shared between The Bar and The Lab.
+  Keep both index.html files in sync when updating this page.
+  The only differences between the two versions are the href values
+  on the .door-enter links (one points to ./app.html, the other to
+  the sister app's Vercel URL).
+-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-
 <style>
-/* ════════════════════════════════════════════════════════
-   ZENITH-X DESIGN TOKENS
-   Source: design.md — dark-mode-first, Inter + JetBrains Mono
-   ════════════════════════════════════════════════════════ */
+/* ── Zenith-X design tokens (from design.md) ────────────── */
 :root{
-  --primary:   #F4FF2B;   /* brand accent — CTAs, highlights      */
-  --bg:        #0F191E;   /* page background                       */
-  --surface:   #E2F1F2;   /* card surfaces                         */
-  --text:      #FFFFFF;   /* primary text on dark                  */
-  --muted:     #A1A1AA;   /* secondary / metadata                  */
-  --border:    #27272A;   /* dividers, card outlines               */
-  --secondary: #0F191E;   /* dark text on light cards              */
-
-  --radius-card:    16px;
-  --radius-control:  8px;
-  --radius-pill:  9999px;
-
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', 'Courier New', monospace;
-
-  --ease: cubic-bezier(.4,0,.2,1);
+  --primary:   #F4FF2B;
+  --bg:        #0F191E;
+  --surface:   #E2F1F2;
+  --text:      #FFFFFF;
+  --muted:     #A1A1AA;
+  --border:    #27272A;
+  --on-card:   #0F191E;
+  --sans:      'Inter', system-ui, sans-serif;
+  --mono:      'JetBrains Mono', 'Courier New', monospace;
+  --ease:      cubic-bezier(.4,0,.2,1);
+  --r-card:    16px;
+  --r-ctrl:    8px;
+  --r-pill:    9999px;
 }
-
-/* ── Reset ─────────────────────────────────────────────── */
 *,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
 html,body{ height:100%; }
 body{
@@ -42,18 +39,18 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 
-/* ── Layout ────────────────────────────────────────────── */
+/* ── Layout ─────────────────────────────────────────────── */
 .wrap{ max-width:960px; margin:0 auto; padding:0 28px; }
 
-/* ── Header ────────────────────────────────────────────── */
+/* ── Header ─────────────────────────────────────────────── */
 header{ padding:80px 0 56px; }
-.project-label{
+.project-tag{
   font-family:var(--mono); font-size:11px; font-weight:500;
   letter-spacing:.22em; text-transform:uppercase;
   color:var(--primary); display:block; margin-bottom:16px;
 }
 .hub-title{
-  font-size:clamp(40px,9vw,76px); font-weight:700;
+  font-size:clamp(38px,9vw,72px); font-weight:700;
   line-height:1.05; letter-spacing:-.02em;
   color:var(--text); margin-bottom:16px;
 }
@@ -63,153 +60,141 @@ header{ padding:80px 0 56px; }
   max-width:46ch; line-height:1.65;
 }
 
-/* ── Door grid ─────────────────────────────────────────── */
-.door-grid{
+/* ── Door grid ──────────────────────────────────────────── */
+.doors{
   display:grid; grid-template-columns:1fr;
   gap:16px; margin-bottom:80px;
 }
-@media(min-width:620px){ .door-grid{ grid-template-columns:1fr 1fr; } }
+@media(min-width:600px){ .doors{ grid-template-columns:1fr 1fr; } }
 
-/* Door = full-card link */
 .door{
   background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--radius-card); padding:24px;
+  border-radius:var(--r-card); padding:24px;
   display:flex; flex-direction:column; gap:16px;
-  text-decoration:none; color:var(--secondary);
+  text-decoration:none; color:var(--on-card);
   transition:transform 200ms ease-out;
-  position:relative; overflow:hidden;
+  position:relative;
 }
 .door:hover{ transform:translateY(-3px); }
 .door:focus-visible{ outline:2px solid var(--primary); outline-offset:4px; }
 
-/* ── Door internals ────────────────────────────────────── */
+/* Tag row */
 .door-tag{
   font-family:var(--mono); font-size:10px; font-weight:500;
   letter-spacing:.12em; text-transform:uppercase;
-  background:var(--border); color:#A1A1AA;
-  border-radius:var(--radius-pill); padding:3px 10px;
+  background:var(--border); color:var(--muted);
+  border-radius:var(--r-pill); padding:3px 10px;
   display:inline-block; width:fit-content;
 }
-.door-tag.live{
-  background:var(--primary); color:var(--secondary);
-}
-.door-head{
-  display:flex; justify-content:space-between;
-  align-items:flex-start; gap:12px;
-}
+.door-tag.live{ background:var(--primary); color:var(--on-card); }
+
+/* Name row */
+.door-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
 .door-name{
   font-size:28px; font-weight:700; line-height:1.1;
-  letter-spacing:-.01em; color:var(--secondary);
+  letter-spacing:-.01em; color:var(--on-card);
 }
-.door-glyph{ color:var(--secondary); opacity:.3; flex:0 0 auto; }
-.door-desc{
-  font-size:14px; line-height:1.65;
-  color:#3a4a50; flex:1;
-}
-.door-chips{
-  display:flex; gap:8px; flex-wrap:wrap;
-}
+.door-icon{ color:var(--on-card); opacity:.25; flex:0 0 auto; }
+
+/* Description */
+.door-desc{ font-size:14px; line-height:1.65; color:#3a4a50; flex:1; }
+
+/* Chips */
+.door-chips{ display:flex; gap:8px; flex-wrap:wrap; }
 .chip{
   font-family:var(--mono); font-size:10px; font-weight:500;
   letter-spacing:.08em; text-transform:uppercase;
   background:rgba(15,25,30,.08); color:#2a3a40;
-  border-radius:var(--radius-pill); padding:3px 10px;
+  border-radius:var(--r-pill); padding:3px 10px;
 }
-.door-cta{
+
+/* Enter CTA */
+.door-enter{
   display:inline-flex; align-items:center; gap:8px;
   font-size:13px; font-weight:600;
-  color:var(--secondary); background:var(--primary);
-  border-radius:var(--radius-control); padding:8px 20px;
-  transition:transform 150ms ease-out;
+  color:var(--on-card); background:var(--primary);
+  border-radius:var(--r-ctrl); padding:8px 20px;
   width:fit-content; margin-top:auto;
+  transition:transform 150ms ease-out;
 }
-.door:hover .door-cta{ transform:translateY(-1px); }
+.door:hover .door-enter{ transform:translateY(-1px); }
 
-/* ── Info strip ────────────────────────────────────────── */
-.info-strip{
+/* ── Info strip ─────────────────────────────────────────── */
+.info{
   padding-top:56px; border-top:1px solid var(--border);
   display:grid; grid-template-columns:1fr;
   gap:16px; margin-bottom:80px;
 }
-@media(min-width:720px){ .info-strip{ grid-template-columns:repeat(3,1fr); } }
+@media(min-width:720px){ .info{ grid-template-columns:repeat(3,1fr); } }
 
 .info-card{
   padding:24px;
   background:rgba(255,255,255,.025);
   border:1px solid var(--border);
-  border-radius:var(--radius-card);
+  border-radius:var(--r-card);
 }
 .info-lbl{
   font-family:var(--mono); font-size:10px; font-weight:500;
   letter-spacing:.18em; text-transform:uppercase;
   color:var(--primary); display:block; margin-bottom:12px;
 }
-.info-body{
-  font-size:13.5px; color:var(--muted); line-height:1.65;
-}
+.info-body{ font-size:13.5px; color:var(--muted); line-height:1.65; }
 .info-body strong{ color:var(--text); font-weight:600; }
 .info-body em{ font-style:italic; }
 
-/* ── Footer ────────────────────────────────────────────── */
+/* ── Footer ─────────────────────────────────────────────── */
 footer{
   padding:28px 0 56px; border-top:1px solid var(--border);
   display:flex; align-items:center;
   justify-content:space-between; flex-wrap:wrap; gap:12px;
 }
-.footer-brand{
-  font-family:var(--mono); font-size:11px; font-weight:500;
-  letter-spacing:.14em; text-transform:uppercase;
-  color:var(--muted);
-}
-.footer-note{ font-size:12px; color:var(--muted); }
-.footer-note a{ color:var(--muted); text-underline-offset:.2em; }
+.footer-l{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+.footer-r{ font-size:12px; color:var(--muted); }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- ── Header ──────────────────────────────────────────── -->
   <header>
-    <span class="project-label">Bar-Lab / v1</span>
+    <span class="project-tag">Bar-Lab / v1</span>
     <h1 class="hub-title">Two tools.<br>One <span>kitchen.</span></h1>
-    <p class="hub-sub">A cocktail recipe browser and a live flavour pairing engine. Both share the same ingredient database. Enter whichever room you need.</p>
+    <p class="hub-sub">A flavour pairing engine and a cocktail recipe browser. Both share the same ingredient database. Enter whichever room you need.</p>
   </header>
 
-  <!-- ── Doors ───────────────────────────────────────────── -->
-  <div class="door-grid">
+  <div class="doors">
 
-    <!-- The Bar -->
-    <a class="door" href="The Bar/index.html">
+    <!-- The Bar — this is The Bar's URL, so Enter goes to ./app.html -->
+    <a class="door" href="./app.html">
       <div><span class="door-tag">Cocktail Reference</span></div>
       <div class="door-head">
         <h2 class="door-name">The Bar</h2>
-        <span class="door-glyph" aria-hidden="true">
-          <svg width="40" height="56" viewBox="0 0 44 60" fill="none"
-               stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <span class="door-icon" aria-hidden="true">
+          <svg width="36" height="52" viewBox="0 0 44 60" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
             <path d="M4,6 H40 L22,28 Z"/>
-            <line x1="8"  y1="7"  x2="16" y2="21" stroke-width=".7" opacity=".6"/>
+            <line x1="8"  y1="7"  x2="16" y2="21" stroke-width=".8" opacity=".5"/>
             <line x1="22" y1="28" x2="22" y2="46"/>
             <line x1="10" y1="46" x2="34" y2="46"/>
           </svg>
         </span>
       </div>
-      <p class="door-desc">IBA recipe browser with search and spirit filters. Glassware, techniques, ice guide, garnish reference, unit conversions, and a favourites collection.</p>
+      <p class="door-desc">IBA recipe browser with search and spirit filters. Glassware, techniques, ice guide, garnish reference, unit conversions, and a favourites list. Built for use behind the bar.</p>
       <div class="door-chips">
         <span class="chip">102 IBA recipes</span>
         <span class="chip">Glassware + Technique</span>
         <span class="chip">ml / oz toggle</span>
       </div>
-      <span class="door-cta">Enter →</span>
+      <span class="door-enter">Enter The Bar →</span>
     </a>
 
-    <!-- The Lab -->
-    <a class="door" href="The Lab/index.html">
+    <!-- The Lab — cross-link to the sister app's Vercel URL -->
+    <a class="door" href="https://the-lab-pearl-tau.vercel.app/app.html">
       <div><span class="door-tag live">Live engine</span></div>
       <div class="door-head">
         <h2 class="door-name">The Lab</h2>
-        <span class="door-glyph" aria-hidden="true">
-          <svg width="32" height="52" viewBox="0 0 36 56" fill="none"
-               stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+        <span class="door-icon" aria-hidden="true">
+          <svg width="32" height="50" viewBox="0 0 36 56" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
             <line x1="13" y1="4"  x2="23" y2="4"/>
             <line x1="14" y1="4"  x2="8"  y2="24"/>
             <line x1="22" y1="4"  x2="28" y2="24"/>
@@ -218,48 +203,48 @@ footer{
           </svg>
         </span>
       </div>
-      <p class="door-desc">Add any ingredients, get ranked compatibility scores from the FlavorGraph engine. Lock ingredients, explore alternatives, tune the confidence threshold.</p>
+      <p class="door-desc">Add any ingredients and see what pairs with them — scored by flavour affinity. Works for cocktails, dishes, or any combination. Lock ingredients, explore alternatives, tune the confidence threshold.</p>
       <div class="door-chips">
         <span class="chip">6,600+ ingredients</span>
         <span class="chip">123k pairing edges</span>
-        <span class="chip">Live Supabase RPC</span>
+        <span class="chip">Food &amp; drinks</span>
       </div>
-      <span class="door-cta">Enter →</span>
+      <span class="door-enter">Enter The Lab →</span>
     </a>
 
-  </div><!-- /door-grid -->
+  </div>
 
-  <!-- ── Info strip ───────────────────────────────────────── -->
-  <section class="info-strip">
+  <section class="info">
     <div class="info-card">
-      <span class="info-lbl">Backend</span>
+      <span class="info-lbl">Engine</span>
       <p class="info-body">
-        <strong>Supabase FlavorGraph</strong> — 6,600+ ingredient nodes with 300-dimensional embeddings,
-        123k weighted pairing edges. Shared by both apps. Read-only anon key, safe in client.
+        <strong>FlavorGraph</strong> — 6,600+ ingredient nodes embedded in 300 dimensions,
+        123k weighted pairing edges. Trained on 1M+ recipes and 1,500 flavour molecules.
+        Park et al., <em>Scientific Reports</em> 2021.
       </p>
     </div>
     <div class="info-card">
       <span class="info-lbl">Stack</span>
       <p class="info-body">
-        <strong>Plain HTML / CSS / JS.</strong> No framework, no build step, no npm.
-        Hosted on Vercel; auto-deploys on push to <code style="font-family:var(--mono);font-size:.85em">main</code>.
-        <code style="font-family:var(--mono);font-size:.85em">tokens.css</code> shared by both apps.
+        <strong>Plain HTML / CSS / JS.</strong> No framework, no build step.
+        Hosted on Vercel; auto-deploys on push to
+        <code style="font-family:var(--mono);font-size:.85em">main</code>.
+        Design tokens shared by both apps.
       </p>
     </div>
     <div class="info-card">
-      <span class="info-lbl">Data</span>
+      <span class="info-lbl">Score guide</span>
       <p class="info-body">
-        Park et al., <em>FlavorGraph</em>, <em>Scientific Reports</em> 2021.
-        <strong>102 IBA cocktail recipes</strong> in Supabase.
-        FlavorGraph trained on 1M+ recipes and 1,500 flavor molecules.
+        <strong>90–100</strong> = well-tested, high-confidence pairings.<br>
+        <strong>70–89</strong> = interesting — worth exploring.<br>
+        <strong>Below 70</strong> = creative risk. Lower the threshold to see them.
       </p>
     </div>
   </section>
 
-  <!-- ── Footer ──────────────────────────────────────────── -->
   <footer>
-    <span class="footer-brand">Bar-Lab</span>
-    <span class="footer-note">Fonts: Inter · JetBrains Mono · WCAG AA validated</span>
+    <span class="footer-l">Bar-Lab</span>
+    <span class="footer-r">Inter · JetBrains Mono · WCAG AA</span>
   </footer>
 
 </div>
