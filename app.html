@@ -322,13 +322,86 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
 .datasrc{margin-top:10px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px}
 .datasrc .pill{width:7px;height:7px;border-radius:50%;background:var(--success);flex:0 0 auto}
 
-/* ── Add view ──────────────────────────────────────────── */
-.add-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.add-btn{background:var(--surface);border:1px solid var(--border);border-radius:14px;
-  padding:18px 14px;cursor:pointer;text-align:center;transition:.2s var(--ease);color:var(--text)}
-.add-btn:active{transform:scale(.95);background:var(--surface-alt)}
-.add-btn svg{width:24px;height:24px;stroke:var(--accent);fill:none;stroke-width:1.6;display:block;margin:0 auto 8px}
-.add-btn span{font-size:13px}
+/* ── Build tab ─────────────────────────────────────────── */
+.build-section{margin-bottom:18px}
+.build-sec-label{font-family:var(--mono);font-size:9px;font-weight:500;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.bm-row{display:flex;gap:6px;flex-wrap:wrap}
+.bm-pill{border:1px solid var(--border);background:transparent;color:var(--muted);
+  font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  padding:6px 14px;border-radius:9999px;cursor:pointer;transition:.15s ease-out;white-space:nowrap}
+.bm-pill.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.build-tmpl-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bt-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bt-head{display:grid;gap:6px;padding:0 0 8px;border-bottom:1px solid var(--border-s);
+  grid-template-columns:1fr 70px 130px 58px 32px}
+.bt-head span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted)}
+.bt-row{display:grid;gap:6px;padding:7px 0;border-bottom:1px solid var(--border);
+  align-items:center;grid-template-columns:1fr 70px 130px 58px 32px;position:relative}
+.bt-name-wrap{position:relative;min-width:0}
+.bt-input,.bt-select{background:var(--surface-alt);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-family:var(--sans);font-size:13px;
+  padding:6px 8px;width:100%;box-sizing:border-box;outline:none;
+  transition:border-color .15s ease-out}
+.bt-input:focus,.bt-select:focus{border-color:var(--accent-m)}
+.bt-select{cursor:pointer}
+.bt-del{background:transparent;border:1px solid var(--border);border-radius:8px;
+  color:var(--muted);width:32px;height:34px;cursor:pointer;font-size:17px;line-height:1;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;padding:0;
+  transition:.15s ease-out}
+.bt-del:hover{border-color:var(--danger);color:var(--danger)}
+.bt-add-row{margin-top:10px;background:transparent;border:1px dashed var(--border);
+  border-radius:10px;color:var(--muted);font-family:var(--sans);font-size:13px;
+  padding:10px;width:100%;cursor:pointer;transition:.15s ease-out;text-align:center}
+.bt-add-row:hover{border-color:var(--accent-m);color:var(--accent)}
+.bt-btn{background:var(--accent);border:none;border-radius:8px;color:var(--bg);
+  font-family:var(--sans);font-size:13px;font-weight:600;padding:7px 14px;
+  cursor:pointer;white-space:nowrap;transition:.15s ease-out;flex:0 0 auto}
+.bt-btn:hover{opacity:.85}
+.bt-ac{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:100;
+  background:var(--surface);border:1px solid var(--border-s);border-radius:10px;
+  overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.22);display:none}
+.bt-ac.open{display:block}
+.bt-ac-item{padding:9px 12px;cursor:pointer;font-size:13px;color:var(--text);
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  transition:background .1s ease-out}
+.bt-ac-item:hover{background:var(--surface-alt)}
+.bt-ac-role{font-family:var(--mono);font-size:9px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted)}
+.build-panel{background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:18px 16px;margin-bottom:12px}
+.build-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.build-panel-title{font-family:var(--sans);font-weight:600;font-size:14px;color:var(--text)}
+.build-panel-badge{font-family:var(--mono);font-size:9px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:9999px;
+  background:transparent;border:1px solid var(--border);color:var(--muted)}
+.build-panel-badge.live{color:var(--success);border-color:var(--success)}
+.build-panel-badge.est{color:var(--warning);border-color:var(--warning)}
+.bb-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
+.bb-bucket{text-align:center}
+.bb-bar-wrap{height:44px;display:flex;align-items:flex-end;margin-bottom:4px}
+.bb-bar{width:100%;border-radius:4px 4px 0 0;background:var(--accent-soft);
+  border-top:2px solid var(--accent-m);transition:height .3s var(--ease)}
+.bb-label{font-family:var(--mono);font-size:8px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted)}
+.bb-ml{font-size:11px;font-weight:500;color:var(--text);margin-bottom:2px}
+.bb-stat{display:flex;align-items:center;gap:10px;padding:9px 12px;
+  background:var(--surface-alt);border-radius:10px;margin-bottom:7px}
+.bb-stat:last-child{margin-bottom:0}
+.bb-stat-label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);flex:0 0 auto}
+.bb-stat-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text)}
+.bb-stat-range{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto;flex:0 0 auto}
+.bb-stat-sug{font-size:12px;color:var(--muted);margin-top:4px;padding:0 12px 8px}
+.bb-ok{color:var(--success)} .bb-warn{color:var(--warning)} .bb-bad{color:var(--danger)}
+.abv-row{display:flex;align-items:baseline;justify-content:space-between;
+  padding:8px 0;border-bottom:1px solid var(--border)}
+.abv-row:last-child{border-bottom:none}
+.abv-row-label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted)}
+.abv-row-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text)}
+.abv-row-val.hi{color:var(--accent)}
 
 /* ── Bottom nav ────────────────────────────────────────── */
 .nav{position:absolute;left:0;right:0;bottom:0;display:flex;overflow-x:auto;
@@ -555,15 +628,69 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
       <div id="favlist"></div>
     </section>
 
-    <!-- ADD -->
-    <section class="view" id="add">
-      <div class="lib-head">Add</div>
-      <div class="lib-sub">Save your own recipes to the collection. (Coming soon — updates via Supabase for now.)</div>
-      <div class="add-grid">
-        <button class="add-btn"><svg viewBox="0 0 24 24"><path d="M7 3h10l-1 7a4 4 0 01-8 0L7 3z"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg><span>Recipe</span></button>
-        <button class="add-btn"><svg viewBox="0 0 24 24"><path d="M6 3h12l-1.5 5.5a4.5 4.5 0 01-9 0L6 3z"/><line x1="12" y1="13" x2="12" y2="21"/><line x1="8.5" y1="21" x2="15.5" y2="21"/></svg><span>Glassware</span></button>
-        <button class="add-btn"><svg viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6l-4.6 8.4A2 2 0 007.2 21h9.6a2 2 0 001.8-3.1L14 9V3"/><line x1="8.4" y1="14.5" x2="15.6" y2="14.5"/></svg><span>Technique</span></button>
-        <button class="add-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><span>More soon</span></button>
+    <!-- BUILD -->
+    <section class="view" id="build">
+      <div class="lib-head">Build</div>
+      <div class="lib-sub">Build a cocktail and see balance, ABV and dilution in real time.</div>
+
+      <!-- Method -->
+      <div class="build-section">
+        <div class="build-sec-label">Method</div>
+        <div class="bm-row">
+          <button class="bm-pill on" data-method="shaken">Shaken</button>
+          <button class="bm-pill" data-method="stirred">Stirred</button>
+          <button class="bm-pill" data-method="built">Built</button>
+          <button class="bm-pill" data-method="thrown">Thrown</button>
+          <button class="bm-pill" data-method="highball">Highball</button>
+        </div>
+      </div>
+
+      <!-- Template picker -->
+      <div class="build-section">
+        <div class="build-sec-label">Template</div>
+        <div class="build-tmpl-row">
+          <select class="bt-select" id="build-tmpl-family" style="flex:1;min-width:140px">
+            <option value="">— Custom —</option>
+            <option value="Sour / Daiquiri">Sour / Daiquiri (2:1:1)</option>
+            <option value="Classic Sour">Classic Sour (2:¾:¾)</option>
+            <option value="Stirred / Manhattan">Stirred / Manhattan (2:1)</option>
+            <option value="Equal Parts">Equal Parts / Negroni (1:1:1)</option>
+            <option value="Highball">Highball (spirit + topper)</option>
+          </select>
+          <input class="bt-input" id="build-tmpl-vol" type="number" min="0" step="5" value="60" style="width:70px" />
+          <span style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap">ml spirit</span>
+          <button class="bt-btn" id="build-tmpl-apply">Apply</button>
+        </div>
+      </div>
+
+      <!-- Ingredient table -->
+      <div class="build-section">
+        <div class="build-sec-label">Ingredients</div>
+        <div class="bt-table-wrap">
+          <div class="bt-head">
+            <span>Ingredient</span><span>ml</span><span>Role</span><span>ABV%</span><span></span>
+          </div>
+          <div id="build-rows"></div>
+        </div>
+        <button class="bt-add-row" id="build-add-row">+ Add ingredient</button>
+      </div>
+
+      <!-- Balance panel -->
+      <div class="build-panel">
+        <div class="build-panel-head">
+          <span class="build-panel-title">Balance</span>
+          <span class="build-panel-badge live">Live</span>
+        </div>
+        <div id="build-balance"></div>
+      </div>
+
+      <!-- ABV & Dilution panel -->
+      <div class="build-panel">
+        <div class="build-panel-head">
+          <span class="build-panel-title">ABV &amp; Dilution</span>
+          <span class="build-panel-badge est">Estimate</span>
+        </div>
+        <div id="build-abv"></div>
       </div>
     </section>
 
@@ -621,8 +748,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
     <button data-go="favourites">
       <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Favs
     </button>
-    <button data-go="add">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add
+    <button data-go="build">
+      <svg viewBox="0 0 24 24"><path d="M9 3h6l1 6H8L9 3z"/><path d="M8 9l-3 12h14L16 9"/><line x1="9" y1="14" x2="15" y2="14"/><line x1="9" y1="17" x2="13" y2="17"/></svg>Build
     </button>
     <button data-go="settings">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings
@@ -637,6 +764,36 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
    ============================================================ */
 const SUPABASE_URL = "https://zmflwqfebartfnjrsvpv.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_paTGMPndKkktfbuqxpdLCA_pkPmHkYB";
+
+/* ============================================================
+   BUILD — constants
+   ============================================================ */
+/* ABV defaults by role — used when an ingredient is selected from autocomplete */
+const ABV_DEFAULTS = { spirit:40, fortified:17, liqueur:24, bitters:44 };
+/* Dilution fractions (added volume ÷ pre-dilution volume) */
+const DILUTION_FRAC = { shaken:.28, stirred:.22, built:.10, thrown:.20, highball:.00 };
+/* Balance targets */
+const BALANCE_TARGET = { sweetSour:[0.8,1.2], strongPct:[28,42] };
+/* Ratio families: [spirit parts, sweet parts, sour parts] */
+const RATIO_FAMILIES = {
+  'Sour / Daiquiri':    [2, 1,    1   ],
+  'Classic Sour':       [2, 0.75, 0.75],
+  'Stirred / Manhattan':[2, 1,    0   ],
+  'Equal Parts':        [1, 1,    1   ],
+  'Highball':           [1, 0,    0   ], /* spirit only; topper added separately */
+};
+/* Role → balance bucket mapping */
+const ROLE_BUCKET = {
+  spirit:'strong', fortified:'strong',
+  liqueur:'sweet',  syrup:'sweet',
+  citrus:'sour',
+  bitters:'aromatic', herb:'aromatic', spice:'aromatic',
+  mixer:'water'
+};
+const ROLES        = ['spirit','fortified','liqueur','syrup','citrus','bitters','herb','spice','mixer','other'];
+const ROLE_LABELS  = {spirit:'Spirit',fortified:'Fortified',liqueur:'Liqueur',
+  syrup:'Syrup / Sugar',citrus:'Citrus',bitters:'Bitters',herb:'Herb / Spice',
+  spice:'Spice',mixer:'Mixer',other:'Other'};
 
 /* ============================================================
    FLAVORGRAPH — live pairing service client
@@ -1562,6 +1719,220 @@ function applyUnit(u){
   if($("#unit-toggle-settings")) $("#unit-toggle-settings").classList.toggle("on",u==="oz");
 }
 
+/* ============================================================
+   BUILD TAB — state + helpers
+   ============================================================ */
+let buildMethod = 'shaken';
+let buildRowCount = 0;
+let buildAcTimer = null;
+
+function newRid(){ return 'br'+(++buildRowCount); }
+function abvDefault(role){ return ABV_DEFAULTS[role] ?? 0; }
+
+function getRows(){
+  return Array.from(document.querySelectorAll('.bt-row')).map(r=>({
+    rid:  r.dataset.rid,
+    name: r.querySelector('.bt-name').value,
+    ml:   parseFloat(r.querySelector('.bt-ml').value)||0,
+    role: r.querySelector('.bt-role').value,
+    abv:  parseFloat(r.querySelector('.bt-abv').value)||0
+  }));
+}
+
+function roleSelectHtml(sel){
+  return ROLES.map(r=>
+    `<option value="${r}"${r===sel?' selected':''}>${esc(ROLE_LABELS[r])}</option>`
+  ).join('');
+}
+
+function buildRowHtml(rid, name='', ml=60, role='spirit', abv=40){
+  return `
+  <div class="bt-row" data-rid="${rid}">
+    <div class="bt-name-wrap">
+      <input class="bt-input bt-name" data-rid="${rid}" type="text"
+        placeholder="Ingredient…" autocomplete="off" value="${esc(name)}" />
+      <div class="bt-ac" id="bt-ac-${rid}"></div>
+    </div>
+    <input class="bt-input bt-ml" data-rid="${rid}" type="number" min="0" step="0.5" value="${ml}" />
+    <select class="bt-select bt-role" data-rid="${rid}">${roleSelectHtml(role)}</select>
+    <input class="bt-input bt-abv" data-rid="${rid}" type="number" min="0" max="100" step="0.5" value="${abv}" />
+    <button class="bt-del" data-rid="${rid}" title="Remove">×</button>
+  </div>`;
+}
+
+function addBuildRow(name='', ml=60, role='spirit', abv=null){
+  const rid = newRid();
+  const a = abv !== null ? abv : abvDefault(role);
+  const wrap = document.getElementById('build-rows');
+  if(wrap) wrap.insertAdjacentHTML('beforeend', buildRowHtml(rid, name, ml, role, a));
+  updateBuild();
+}
+
+function deleteBuildRow(rid){
+  const el = document.querySelector(`.bt-row[data-rid="${rid}"]`);
+  if(el) el.remove();
+  updateBuild();
+}
+
+/* ── Autocomplete ─────────────────────────────────────────── */
+async function searchIngredients(term, rid){
+  const ac = document.getElementById('bt-ac-'+rid);
+  if(!ac) return;
+  if(!term||term.length<2){ ac.innerHTML=''; ac.classList.remove('open'); return; }
+  const url = `${SUPABASE_URL}/rest/v1/flavor_nodes?display_name=ilike.*${encodeURIComponent(term)}*&select=display_name,bar_role&limit=8&order=display_name.asc`;
+  try{
+    const res = await fetch(url,{headers:{apikey:SUPABASE_ANON_KEY}});
+    const rows = await res.json();
+    if(!Array.isArray(rows)||!rows.length){ ac.innerHTML=''; ac.classList.remove('open'); return; }
+    ac.innerHTML = rows.map(r=>`<div class="bt-ac-item" data-name="${esc(r.display_name)}" data-role="${esc(r.bar_role||'other')}" data-rid="${rid}"><span>${esc(r.display_name)}</span><span class="bt-ac-role">${esc(r.bar_role||'')}</span></div>`).join('');
+    ac.classList.add('open');
+  }catch(e){ ac.innerHTML=''; ac.classList.remove('open'); }
+}
+
+function selectIngredient(rid, name, role){
+  const row = document.querySelector(`.bt-row[data-rid="${rid}"]`);
+  if(!row) return;
+  row.querySelector('.bt-name').value = name;
+  const validRole = ROLES.includes(role) ? role : 'other';
+  row.querySelector('.bt-role').value = validRole;
+  row.querySelector('.bt-abv').value = abvDefault(validRole);
+  const ac = document.getElementById('bt-ac-'+rid);
+  if(ac){ ac.innerHTML=''; ac.classList.remove('open'); }
+  updateBuild();
+}
+
+function closeAllAc(){
+  document.querySelectorAll('.bt-ac.open').forEach(a=>{ a.innerHTML=''; a.classList.remove('open'); });
+}
+
+/* ── Balance + ABV computations ──────────────────────────── */
+function computeBalance(rows){
+  const b = {strong:0,sweet:0,sour:0,aromatic:0,water:0};
+  rows.forEach(r=>{
+    const bucket = ROLE_BUCKET[r.role];
+    if(bucket) b[bucket] += r.ml;
+  });
+  return b;
+}
+
+function computeAbv(rows, method){
+  const totalMl    = rows.reduce((s,r)=>s+r.ml, 0);
+  const alcoholMl  = rows.reduce((s,r)=>s + r.ml*(r.abv/100), 0);
+  const frac       = DILUTION_FRAC[method] ?? 0;
+  const finalVol   = totalMl * (1+frac);
+  const finalAbv   = finalVol>0 ? alcoholMl/finalVol*100 : 0;
+  return {totalMl, alcoholMl, frac, finalVol, finalAbv};
+}
+
+function renderBalance(rows){
+  const el = document.getElementById('build-balance');
+  if(!el) return;
+  const b = computeBalance(rows);
+  const total = b.strong+b.sweet+b.sour+b.aromatic+b.water;
+  const maxMl = Math.max(...Object.values(b), 0.01);
+  const buckets = [
+    {key:'strong',label:'Strong'},{key:'sweet',label:'Sweet'},
+    {key:'sour',label:'Sour'},{key:'aromatic',label:'Aromatic'},{key:'water',label:'Water'}
+  ];
+  const barsHtml = buckets.map(({key,label})=>{
+    const ml = b[key];
+    const h = Math.max(Math.round((ml/maxMl)*44), ml>0?3:0);
+    return `<div class="bb-bucket">
+      <div class="bb-bar-wrap"><div class="bb-bar" style="height:${h}px"></div></div>
+      <div class="bb-ml">${ml>0?ml.toFixed(ml%1?1:0):''}</div>
+      <div class="bb-label">${label}</div>
+    </div>`;
+  }).join('');
+
+  /* Sweet:Sour */
+  const ss = b.sour>0 ? b.sweet/b.sour : null;
+  const [ssLo,ssHi] = BALANCE_TARGET.sweetSour;
+  let ssCls='', ssSug='No sour component yet';
+  if(ss!==null){
+    if(ss<ssLo){ssCls='bb-bad'; ssSug='Too tart — add more sweet or reduce citrus';}
+    else if(ss>ssHi){ssCls='bb-warn'; ssSug='Leans sweet — add more citrus or reduce sweet';}
+    else{ssCls='bb-ok'; ssSug='Balanced';}
+  }
+  const ssHtml = `<div class="bb-stat">
+    <span class="bb-stat-label">Sweet : Sour</span>
+    <span class="bb-stat-val ${ssCls}">${ss!==null?ss.toFixed(2):'—'}</span>
+    <span class="bb-stat-range">target ${ssLo}–${ssHi}</span>
+  </div>
+  <div class="bb-stat-sug ${ssCls}">${ssSug}</div>`;
+
+  /* Strong % */
+  const [spLo,spHi] = BALANCE_TARGET.strongPct;
+  const spPct = total>0 ? b.strong/total*100 : null;
+  let spCls='', spSug='Add ingredients to see balance';
+  if(spPct!==null){
+    if(spPct<spLo){spCls='bb-bad'; spSug=`Light on spirit at ${spPct.toFixed(0)}% — add more base spirit`;}
+    else if(spPct>spHi){spCls='bb-warn'; spSug=`Spirit-heavy at ${spPct.toFixed(0)}% — consider more sweet or sour`;}
+    else{spCls='bb-ok'; spSug=`Spirit well-balanced at ${spPct.toFixed(0)}%`;}
+  }
+  const spHtml = `<div class="bb-stat">
+    <span class="bb-stat-label">Strong</span>
+    <span class="bb-stat-val ${spCls}">${spPct!==null?spPct.toFixed(0)+'%':'—'}</span>
+    <span class="bb-stat-range">target ${spLo}–${spHi}%</span>
+  </div>
+  <div class="bb-stat-sug ${spCls}">${spSug}</div>`;
+
+  el.innerHTML = `<div class="bb-grid">${barsHtml}</div>${ssHtml}${spHtml}`;
+}
+
+function renderAbv(rows){
+  const el = document.getElementById('build-abv');
+  if(!el) return;
+  const {totalMl, frac, finalVol, finalAbv} = computeAbv(rows, buildMethod);
+  if(totalMl===0){
+    el.innerHTML=`<div style="font-size:13px;color:var(--muted);padding:4px 0">Add ingredients above.</div>`;
+    return;
+  }
+  const dilMl = finalVol-totalMl;
+  el.innerHTML = `
+    <div class="abv-row">
+      <span class="abv-row-label">Pre-dilution volume</span>
+      <span class="abv-row-val">${totalMl.toFixed(0)} ml</span>
+    </div>
+    <div class="abv-row">
+      <span class="abv-row-label">Dilution · ${buildMethod} (${(frac*100).toFixed(0)}%)</span>
+      <span class="abv-row-val">+${dilMl.toFixed(0)} ml</span>
+    </div>
+    <div class="abv-row">
+      <span class="abv-row-label">Final volume</span>
+      <span class="abv-row-val">${finalVol.toFixed(0)} ml</span>
+    </div>
+    <div class="abv-row">
+      <span class="abv-row-label">Estimated ABV</span>
+      <span class="abv-row-val hi">${finalAbv.toFixed(1)}%</span>
+    </div>`;
+}
+
+function updateBuild(){
+  const rows = getRows();
+  renderBalance(rows);
+  renderAbv(rows);
+}
+
+/* ── Template ─────────────────────────────────────────────── */
+function applyBuildTemplate(){
+  const family    = document.getElementById('build-tmpl-family').value;
+  const spiritMl  = parseFloat(document.getElementById('build-tmpl-vol').value)||60;
+  if(!family||!RATIO_FAMILIES[family]) return;
+  const [s,sw,so] = RATIO_FAMILIES[family];
+  const unit      = spiritMl/s;
+  const wrap      = document.getElementById('build-rows');
+  if(wrap) wrap.innerHTML='';
+  if(s>0)  addBuildRow('', spiritMl,                          'spirit',  ABV_DEFAULTS.spirit);
+  if(sw>0) addBuildRow('', parseFloat((unit*sw).toFixed(1)),  'syrup',   0);
+  if(so>0) addBuildRow('', parseFloat((unit*so).toFixed(1)),  'citrus',  0);
+}
+
+/* ── Init ─────────────────────────────────────────────────── */
+function initBuild(){
+  addBuildRow('', 60, 'spirit', ABV_DEFAULTS.spirit);
+  updateBuild();
+}
+
 /* ── Navigation ──────────────────────────────────────────── */
 function go(view){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===view));
@@ -1570,6 +1941,7 @@ function go(view){
   );
   if(view==="favourites") renderFavourites();
   if(view==="pairings") fgExplore($("#fg-q")?$("#fg-q").value:"");
+  if(view==="build" && !document.querySelector('.bt-row')) initBuild();
 }
 
 /* ── Events ──────────────────────────────────────────────── */
@@ -1618,6 +1990,51 @@ document.addEventListener("click",e=>{
   const card=e.target.closest(".ice-card");
   if(!card) return;
   card.classList.toggle("open");
+});
+
+/* ── Build tab events ──────────────────────────────────── */
+document.addEventListener("click",e=>{
+  /* Method selector */
+  const pill=e.target.closest(".bm-pill");
+  if(pill&&pill.dataset.method){
+    buildMethod=pill.dataset.method;
+    document.querySelectorAll(".bm-pill").forEach(p=>p.classList.toggle("on",p===pill));
+    updateBuild();
+    return;
+  }
+  /* Delete ingredient row */
+  const del=e.target.closest(".bt-del");
+  if(del){ deleteBuildRow(del.dataset.rid); return; }
+  /* Add ingredient row */
+  if(e.target.id==="build-add-row"){ addBuildRow(); return; }
+  /* Apply template */
+  if(e.target.id==="build-tmpl-apply"){ applyBuildTemplate(); return; }
+  /* Autocomplete item select */
+  const acItem=e.target.closest(".bt-ac-item");
+  if(acItem){ selectIngredient(acItem.dataset.rid,acItem.dataset.name,acItem.dataset.role); return; }
+  /* Close autocomplete when clicking outside a name-wrap */
+  if(!e.target.closest(".bt-name-wrap")) closeAllAc();
+});
+
+/* Ingredient name autocomplete (debounced) */
+document.addEventListener("input",e=>{
+  const nameInput=e.target.closest(".bt-name");
+  if(!nameInput) return;
+  clearTimeout(buildAcTimer);
+  const rid=nameInput.dataset.rid, term=nameInput.value;
+  buildAcTimer=setTimeout(()=>searchIngredients(term,rid),250);
+  updateBuild();
+});
+
+/* Role/ml/abv change → update panels; role change → reset ABV default */
+document.addEventListener("change",e=>{
+  if(!e.target.closest(".bt-row")) return;
+  if(e.target.classList.contains("bt-role")){
+    const rid=e.target.dataset.rid;
+    const row=document.querySelector(`.bt-row[data-rid="${rid}"]`);
+    if(row) row.querySelector(".bt-abv").value=abvDefault(e.target.value);
+  }
+  updateBuild();
 });
 
 /* Search */
