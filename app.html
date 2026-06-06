@@ -330,6 +330,55 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
 .nav button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.7}
 .nav button.on{color:var(--accent);background:var(--accent-soft)}
 .nav button:active{transform:scale(.88)}
+
+/* ================================================================
+   RESPONSIVE — tablet & desktop
+   Mobile-first base above is unchanged; these override at wider sizes.
+   ================================================================ */
+
+/* 560 px — remove phone chrome, expand to full width */
+@media(min-width:560px){
+  body{display:block}
+  .app{max-width:none;border-left:none;border-right:none}
+  .topbar{padding:16px 28px 14px}
+  .view{padding:22px 28px calc(72px + env(safe-area-inset-bottom))}
+  /* Remove the negative-margin bleed trick used for mobile edge-to-edge */
+  .chips,.fchips,.ice-selector{margin:0;padding-left:0;padding-right:0}
+  /* Nav: let items wrap instead of scroll */
+  .nav{overflow-x:visible;flex-wrap:wrap;justify-content:flex-start;
+    padding:5px 8px calc(5px + env(safe-area-inset-bottom))}
+  .nav button{min-width:68px}
+}
+
+/* 640 px — two-column grids for card lists */
+@media(min-width:640px){
+  /* Chips wrap naturally at wider widths — no horizontal scroll needed */
+  .chips,.fchips,.ice-selector{overflow-x:visible;flex-wrap:wrap}
+  /* Recipe list: 2-up grid */
+  #list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  #list .card{margin-bottom:0}
+  /* Glassware: 2-up grid */
+  #glasslist{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  #glasslist .lib-card{margin-bottom:0}
+  /* Garnish: 3 columns (was 2) */
+  .garn-grid{grid-template-columns:repeat(3,1fr)}
+  /* Slightly larger glass art in detail */
+  .d-glassart svg{width:64px;height:92px}
+}
+
+/* 960 px — three columns for recipes, cap + centre the app */
+@media(min-width:960px){
+  body{background:var(--surface-alt)}
+  .app{max-width:1100px;margin:0 auto;
+    border-left:1px solid var(--border);border-right:1px solid var(--border)}
+  .topbar{padding:16px 36px 14px}
+  .view{padding:28px 36px calc(72px + env(safe-area-inset-bottom))}
+  #list{grid-template-columns:repeat(3,1fr)}
+  #glasslist{grid-template-columns:repeat(3,1fr)}
+  .garn-grid{grid-template-columns:repeat(4,1fr)}
+  .nav{padding:6px 20px calc(6px + env(safe-area-inset-bottom))}
+  .nav button{min-width:78px;padding:8px 10px;font-size:10px}
+}
 </style>
 </head>
 <body>
