@@ -3,75 +3,156 @@
 Context for Claude Code working in this repo. This is the working agreement.
 
 ## What this is
-**The Bar** (previously "Back Bar") is the floor-facing cocktail app: recipe browser,
-glassware, techniques, and cocktail-specific R&D tools (Build, Balance, Batch).
+**The Bar** is a cocktail reference tool for use behind the bar: recipe browser,
+glassware, techniques, ice guide, garnish reference, unit conversions.
+It also has a stub for a Build / Balance / Batch tab (not yet built).
 
-**Sister app: The Lab** (`flavour-studio/`) — ingredient pairing R&D. The two apps
-share one Supabase backend and the same `tokens.css`.
+**Sister app: The Lab** — ingredient pairing engine.
+Both share the same Supabase backend and `tokens.css`.
+
+---
+
+## File layout
+
+```
+index.html        ← Landing page (Zenith-X design, links to app.html and The Lab)
+app.html          ← The Bar tool  ← THIS IS THE FILE TO EDIT
+tokens.css        ← Shared design tokens (sage-teal accent, Fraunces/Inter)
+design.md         ← Zenith-X design system spec (for the landing page)
+recipes-iba.sql   ← SQL to seed Supabase with IBA recipes
+supabase-schema.sql ← Full Supabase schema definition
+CLAUDE.md         ← This file
+```
+
+**When editing the tool, edit `app.html`. Never edit `index.html` for tool changes.**
+
+The landing page (`index.html`) is identical to The Lab's — keep both in sync when
+making landing page changes. The only difference is which door's Enter button links
+to `./app.html` vs to the sister Vercel URL.
+
+---
 
 ## Stack & conventions
-- **Single file: `cocktail-app.html`** — HTML + CSS + vanilla JS. No framework, no build step.
-- **Styling:** `tokens.css` (shared with The Lab). CSS variables, dark by default.
-- **JS style:** `$()` selector helper, `esc()` HTML-escaper, small `render*()` functions,
-  plain event listeners. Keep readable for a non-developer owner.
-- App name in all user-facing text: **The Bar**.
+- **Single file: `app.html`** — HTML + CSS + vanilla JS. No framework, no build step.
+- **Styling:** `tokens.css`. CSS variables only. Dark by default (`data-theme="dark"`).
+- **JS style:** `$()` selector helper, `esc()` HTML-escaper, `const` / arrow functions,
+  small render functions, plain event listeners.
+- App name in all user-facing text: **The Bar.**
+
+---
 
 ## Backend — shared Supabase project
+
 ```js
-const SUPABASE_URL      = "";   // shared with The Lab
-const SUPABASE_ANON_KEY = "";   // anon key — safe in client (RLS read-only)
+const SUPABASE_URL      = "https://zmflwqfebartfnjrsvpv.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_paTGMPndKkktfbuqxpdLCA_pkPmHkYB";
 ```
-Tables used by The Bar: `recipes`, `glassware`, `techniques`.
-FlavorGraph tables (`flavor_nodes`, `flavor_pairings`) are also in this project;
-The Bar may read them for the Build tab but does not write or recreate them.
 
-## Features already built
-- Recipe browser (search, spirit filters, group-by, detail view with line-art)
-- Glassware library
-- Techniques library (prep + assembly)
-- Ice guide
-- Garnish grid
-- Conversions (bar measures, volume, weight, temperature)
-- FlavorGraph pairing explorer (FG client with `pair()` and `tags()`)
-- Favourites (localStorage)
-- Settings (theme, units)
+**Auth header — critical:** The key is a publishable key, not a JWT.
+Send it in `apikey` only. `Authorization: Bearer` returns 401.
 
-## Features to add (from The Lab pivot)
-The following were prototyped in `flavour-studio/index.html` and should be ported here:
+```js
+// CORRECT
+{ apikey: SUPABASE_ANON_KEY }
 
-### Build tab
-- Ingredient table: name | ml | role (from flavor_nodes.bar_role, manual override) | ABV%
+// WRONG — returns 401
+{ apikey: SUPABASE_ANON_KEY, Authorization: "Bearer " + SUPABASE_ANON_KEY }
+```
+
+**Tables used by The Bar:**
+```
+recipes      — 102 IBA cocktails (name, base, method, glass, profile,
+               flavours[], ingredients jsonb, steps[], garnish, notes)
+glassware    — standard bar glasses
+techniques   — prep + assembly methods
+```
+
+**FlavorGraph tables** (`flavor_nodes`, `flavor_pairings`) are in the same project.
+The Bar has a `FG` client (with `pair()` and `tags()`) but no UI wired to it yet.
+Do not recreate these tables or RPCs.
+
+---
+
+## What's built (app.html)
+
+| Tab | Status |
+|---|---|
+| Recipes | ✅ Complete — search, spirit chips, flavour chips, group-by, detail view with glass art |
+| Glassware | ✅ Complete — illustrated library with specs |
+| Ice | ✅ Complete — selector + detailed cards with dilution data |
+| Prep | ✅ Complete — techniques with expandable steps |
+| Assembly | ✅ Complete — build methods |
+| Garnish | ✅ Complete — grid with placement tips |
+| Pairings | ⚠️ Stub — search input exists, `fgExplore()` function needs wiring |
+| Conversions | ✅ Complete — bar measures, volume, weight, temperature |
+| Favourites | ✅ Complete — localStorage starred recipes |
+| Settings | ✅ Complete — dark/light theme, ml/oz unit toggle |
+
+**Responsive:** Full cross-platform layout (mobile 560px, tablet 640px, desktop 960px).
+
+---
+
+## What's NOT built — next priority
+
+### Build tab (replace the "Add" stub in the nav)
+Full spec below. One session should cover the whole thing.
+
+**Ingredient table**
+- Rows: name | ml | role (from `flavor_nodes.bar_role`, manually overrideable) | ABV%
+- Add ingredients via autocomplete from `flavor_nodes`
 - Ratio template picker: family dropdown + base spirit volume → auto-fills rows
-  Families: Sour/Daiquiri (2:1:1), Classic Sour (2:¾:¾), Spirit-forward, Stirred/Manhattan,
-  Equal-parts/Negroni, Highball (1:3), Collins/Fizz
+  - Families: Sour/Daiquiri (2:1:1), Classic Sour (2:¾:¾), Stirred/Manhattan (2:1),
+    Equal-parts/Negroni (1:1:1), Highball (1:3), Collins/Fizz
 - Method selector: Shaken / Stirred / Built / Thrown / Highball
 
-### Balance panel (live, within Build tab)
+**Balance panel** (live, within Build tab)
 - Buckets: Strong (spirit, fortified) / Sweet (syrup, liqueur) / Sour (citrus) /
   Aromatic (bitters, herb, spice) / Water (mixer)
-- Sweet:Sour ratio + target range (0.8–1.2)
-- Strong% + plain-English suggestion
+- Sweet:Sour ratio display + target range (0.8–1.2)
+- Strong% + plain-English suggestion when out of range
 
-### ABV & Dilution panel (live, within Build tab)
+**ABV & Dilution panel** (live, within Build tab)
 - Per ingredient: `alcohol_ml = ml × (abv / 100)`
 - `final_volume = pre_dilution_volume × (1 + dilution_fraction)`
 - `final_ABV = total_alcohol / final_volume × 100`
-- Dilution fractions: shaken 0.28, stirred 0.22, built 0.10, thrown 0.20, highball 0.00
 - Label everything **ESTIMATE**
 
-### Batch tab
+**Constants to keep at top of script, clearly commented:**
+```js
+const ABV_DEFAULTS   = { spirit:40, fortified:17, liqueur:24, bitters:44 };
+const DILUTION_FRAC  = { shaken:.28, stirred:.22, built:.10, thrown:.20, highball:.00 };
+const BALANCE_TARGET = { sweetSour:[0.8,1.2], strongPct:[28,42] };
+// Ratio families: name → [spirit, sweet, sour] proportions
+const RATIO_FAMILIES = {
+  'Sour / Daiquiri':    [2, 1,    1],
+  'Classic Sour':       [2, 0.75, 0.75],
+  'Stirred / Manhattan':[2, 1,    0],
+  'Equal Parts':        [1, 1,    1],
+  'Highball':           [1, 0,    0], // spirit only; topper added separately
+};
+```
+
+### Pairings tab (already stubbed — small task)
+The `fgExplore()` function in `app.html` is empty. The `FG.pair()` client is ready.
+Just needs the search-input handler and a result renderer (score bars + click-to-add).
+
+### Batch tab (after Build)
 - Scale build by N servings
 - Pre-add dilution water: `water_ml = dilution_fraction × pre_dilution_volume × N`
-- Output: total batch volume, water to add, bottle yield (÷ 750 ml)
+- Output: total volume, water to add, bottle yield (÷ 750 ml)
 
-### Constants (keep at the top of the script, clearly commented)
-- ABV defaults by role: spirit 40, fortified 17, liqueur 24, bitters 44, others 0
-- Dilution fractions (see above)
-- Balance targets (Sweet:Sour, Strong%)
-- Ratio family definitions
+---
 
 ## Don't
 - Don't add accounts or a build toolchain.
 - Don't recreate FlavorGraph tables/RPCs — only read them.
-- Don't commit real Supabase keys.
+- Don't commit real Supabase keys (current key is read-only publishable — safe).
 - Don't add the Pairings / Ingredient List / Info experience here — that belongs in The Lab.
+
+---
+
+## Deployments
+- **Live:** https://the-bar-kappa.vercel.app (auto-deploys from `main`)
+- Landing page: `/` (index.html)
+- Tool: `/app.html`
+- **Repo:** https://github.com/SaturdayLim/the-bar
