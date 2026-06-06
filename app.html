@@ -1531,14 +1531,14 @@ async function populateFlavorGraph(r){
 /* ── FlavorGraph: standalone pairing explorer ────────────── */
 let fgExploreTimer;
 function fgExplore(term){
-  const out=$(“#fg-explore”);
+  const out=$("#fg-explore");
   if(!out) return;
-  if(!FG.enabled()){ out.innerHTML=`<div class=”empty”>FlavorGraph isn't connected yet.</div>`; return; }
-  if(!term||!term.trim()){ out.innerHTML=`<div class=”fg-hint”>Type an ingredient to explore its pairings.</div>`; return; }
-  out.innerHTML=`<div class=”fg-hint”>Searching the flavour graph…</div>`;
-  FG.pair([term],”explore”,[],24).then(rows=>{
+  if(!FG.enabled()){ out.innerHTML=`<div class="empty">FlavorGraph isn't connected yet.</div>`; return; }
+  if(!term||!term.trim()){ out.innerHTML=`<div class="fg-hint">Type an ingredient to explore its pairings.</div>`; return; }
+  out.innerHTML=`<div class="fg-hint">Searching the flavour graph…</div>`;
+  FG.pair([term],"explore",[],24).then(rows=>{
     if(!rows||!rows.length){
-      out.innerHTML=`<div class=”empty”>Nothing found for “<b>${esc(term)}</b>”.<br>Try a simpler word — “lime”, not “lime cordial”.</div>`;
+      out.innerHTML=`<div class="empty">Nothing found for "<b>${esc(term)}</b>".<br>Try a simpler word — "lime", not "lime cordial".</div>`;
       return;
     }
     /* Normalise: raw score is cosine similarity 0–1; scale to 0–100 then
@@ -1546,18 +1546,18 @@ function fgExplore(term){
     const scored = rows.map(x=>({...x, pct: Math.round(x.score*100)}));
     const maxPct = Math.max(...scored.map(x=>x.pct), 1);
     out.innerHTML =
-      `<div class=”fg-explore-head”>Pairs well with ${esc(term)} — ${scored.length} results</div>`+
+      `<div class="fg-explore-head">Pairs well with ${esc(term)} — ${scored.length} results</div>`+
       scored.map(x=>`
-        <div class=”fg-res-row” data-fg=”${esc(x.display_name)}”>
-          <div class=”fg-score-bar-wrap”>
-            <div class=”fg-score-bar” style=”width:${Math.round(x.pct/maxPct*100)}%”></div>
+        <div class="fg-res-row" data-fg="${esc(x.display_name)}">
+          <div class="fg-score-bar-wrap">
+            <div class="fg-score-bar" style="width:${Math.round(x.pct/maxPct*100)}%"></div>
           </div>
-          <span class=”fg-res-name”>${esc(x.display_name)}</span>
-          <span class=”fg-res-role”>${esc(x.role||x.category||'')}</span>
-          <span class=”fg-res-score”>${x.pct}</span>
+          <span class="fg-res-name">${esc(x.display_name)}</span>
+          <span class="fg-res-role">${esc(x.role||x.category||'')}</span>
+          <span class="fg-res-score">${x.pct}</span>
         </div>`).join('')+
-      `<div class=”fg-credit” style=”margin-top:14px”>Pairings via FlavorGraph · Park et al., Scientific Reports (2021)</div>`;
-  }).catch(()=>{ out.innerHTML=`<div class=”empty”>Pairing service unavailable right now.</div>`; });
+      `<div class="fg-credit" style="margin-top:14px">Pairings via FlavorGraph · Park et al., Scientific Reports (2021)</div>`;
+  }).catch(()=>{ out.innerHTML=`<div class="empty">Pairing service unavailable right now.</div>`; });
 }
 
 /* ── Glassware ───────────────────────────────────────────── */
