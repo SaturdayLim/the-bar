@@ -10,7 +10,7 @@
 <title>The Bar — Cocktail recipes &amp; service</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <!-- Design tokens (colours, fonts, motion) — edit tokens.css to re-theme -->
 <link rel="stylesheet" href="tokens.css" />
 <style>
@@ -207,44 +207,57 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
 .lib-card .mr b{color:var(--accent);font-weight:500}
 .lib-card .cap{margin-top:5px;font-size:12px;color:var(--muted)}
 
-/* ── Ice tab (redesigned) ──────────────────────────────── */
-.ice-selector{display:flex;gap:7px;overflow-x:auto;padding:0 0 16px;
-  margin:0 -20px;padding-left:20px;padding-right:20px;scrollbar-width:none}
-.ice-selector::-webkit-scrollbar{display:none}
-.ice-pill{flex:0 0 auto;border:1px solid var(--border);background:transparent;color:var(--muted);
-  font-family:var(--sans);font-size:12.5px;padding:7px 14px;border-radius:999px;
-  cursor:pointer;transition:.2s var(--ease);white-space:nowrap}
-.ice-pill.on{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:500}
-.ice-detail-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden}
-.ice-big-art{background:var(--surface-alt);padding:32px 20px 24px;
-  display:flex;align-items:center;justify-content:center;min-height:180px;
-  border-bottom:1px solid var(--border)}
-.ice-big-art svg{width:100%;max-width:260px;height:auto}
-.ice-detail-body{padding:22px 20px}
-.ice-name{font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.1;margin-bottom:4px}
-.ice-dil-badge{display:inline-flex;align-items:center;gap:6px;margin-bottom:14px}
-.ice-dil-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-.ice-dil-val{font-size:12.5px;font-weight:600;color:var(--accent);
+/* ── Ice guide (Zenith-X card grid) ────────────────────── */
+.ice-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.ice-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;cursor:pointer;
+  transition:transform 200ms ease-out,border-color 200ms ease-out}
+.ice-card:hover{transform:translateY(-2px);border-color:var(--border-s)}
+.ice-card.open{border-color:var(--accent-m)}
+.ic-header{display:flex;align-items:center;gap:14px;padding:16px}
+.ic-art{flex:0 0 72px;height:72px;background:var(--surface-alt);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  color:var(--accent-m)}
+.ic-art svg{width:60px;height:auto;display:block}
+.ic-info{flex:1;min-width:0}
+.ic-name{font-family:var(--sans);font-weight:600;font-size:15px;color:var(--text);
+  margin-bottom:6px;line-height:1.2}
+.ic-dil{display:inline-flex;align-items:center;gap:6px}
+.ic-dil-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted)}
+.ic-dil-val{font-family:var(--mono);font-size:10px;font-weight:500;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--accent);
   background:var(--accent-soft);border:1px solid var(--accent-m);
-  padding:2px 10px;border-radius:6px}
-.ice-desc{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px;font-family:var(--serif);font-style:italic}
-.ice-section{margin-bottom:18px}
-.ice-section-label{font-size:10px;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:9px}
-.ice-list{list-style:none;display:flex;flex-direction:column;gap:5px}
-.ice-list li{font-size:14px;color:var(--text);line-height:1.5;
-  display:flex;align-items:flex-start;gap:8px}
-.ice-list li::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;
-  background:var(--accent-m);margin-top:7px}
-.ice-list.avoid li::before{background:var(--danger)}
-.ice-chips-row{display:flex;flex-wrap:wrap;gap:7px}
-.ice-chip-item{font-size:12.5px;padding:5px 12px;border-radius:8px;
-  background:var(--surface-alt);border:1px solid var(--border);color:var(--text)}
-.ice-notes{display:flex;flex-direction:column;gap:9px;margin-top:4px}
-.ice-note-item{font-size:13px;line-height:1.55;color:var(--muted);
-  background:var(--surface-alt);border-radius:10px;padding:10px 13px;
-  border-left:3px solid var(--accent)}
-.ice-note-item b{color:var(--text);font-weight:500}
+  padding:2px 9px;border-radius:9999px}
+.ic-toggle{flex:0 0 28px;height:28px;border-radius:50%;border:1px solid var(--border);
+  background:transparent;color:var(--muted);display:flex;align-items:center;
+  justify-content:center;transition:background 200ms ease-out,color 200ms ease-out;
+  pointer-events:none}
+.ic-toggle svg{width:12px;height:12px;transition:transform 200ms ease-out}
+.ice-card.open .ic-toggle{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.ice-card.open .ic-toggle svg{transform:rotate(180deg)}
+.ic-desc{font-size:13px;color:var(--muted);line-height:1.55;padding:0 16px 16px}
+.ic-body{display:none;border-top:1px solid var(--border);padding:20px 16px}
+.ice-card.open .ic-body{display:block}
+.ic-section{margin-bottom:20px}
+.ic-section:last-child{margin-bottom:0}
+.ic-section-label{font-family:var(--mono);font-size:9px;font-weight:500;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.ic-list{list-style:none;display:flex;flex-direction:column;gap:5px}
+.ic-list li{font-size:13.5px;color:var(--text);line-height:1.5;
+  display:flex;align-items:flex-start;gap:9px}
+.ic-list li::before{content:"";flex:0 0 4px;height:4px;border-radius:50%;
+  background:var(--accent-m);margin-top:9px}
+.ic-list.avoid li::before{background:var(--danger)}
+.ic-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ic-chip{font-family:var(--mono);font-size:10px;font-weight:500;
+  letter-spacing:.04em;text-transform:uppercase;padding:4px 10px;
+  border-radius:9999px;background:var(--surface-alt);border:1px solid var(--border);color:var(--muted)}
+.ic-notes{display:flex;flex-direction:column;gap:8px}
+.ic-note{background:var(--surface-alt);border-radius:10px;padding:12px 14px}
+.ic-note-label{font-family:var(--mono);font-size:9px;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.ic-note-text{font-size:13px;color:var(--muted);line-height:1.55}
 
 /* ── Techniques (Prep / Assembly) ──────────────────────── */
 .tcat{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin:22px 0 12px}
@@ -343,7 +356,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
   .topbar{padding:16px 28px 14px}
   .view{padding:22px 28px calc(72px + env(safe-area-inset-bottom))}
   /* Remove the negative-margin bleed trick used for mobile edge-to-edge */
-  .chips,.fchips,.ice-selector{margin:0;padding-left:0;padding-right:0}
+  .chips,.fchips{margin:0;padding-left:0;padding-right:0}
   /* Nav: let items wrap instead of scroll */
   .nav{overflow-x:visible;flex-wrap:wrap;justify-content:flex-start;
     padding:5px 8px calc(5px + env(safe-area-inset-bottom))}
@@ -353,12 +366,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
 /* 640 px — two-column grids for card lists */
 @media(min-width:640px){
   /* Chips wrap naturally at wider widths — no horizontal scroll needed */
-  .chips,.fchips,.ice-selector{overflow-x:visible;flex-wrap:wrap}
+  .chips,.fchips{overflow-x:visible;flex-wrap:wrap}
   /* Recipe list: 2-up grid */
   #list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
   #list .card{margin-bottom:0}
   /* Glassware: 2-up grid */
   #glasslist{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  /* Ice: 2-up grid */
+  .ice-grid{grid-template-columns:repeat(2,1fr)}
   #glasslist .lib-card{margin-bottom:0}
   /* Garnish: 3 columns (was 2) */
   .garn-grid{grid-template-columns:repeat(3,1fr)}
@@ -451,12 +466,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
       <div id="glasslist"></div>
     </section>
 
-    <!-- ICE — swipeable selector + large-format detail card -->
+    <!-- ICE — reference card grid -->
     <section class="view" id="ice">
       <div class="lib-head">Ice</div>
-      <div class="lib-sub">Select a type to see its dilution profile, compatible glassware and service notes.</div>
-      <div class="ice-selector" id="ice-selector"></div>
-      <div id="ice-detail"></div>
+      <div class="lib-sub">Tap any card for dilution profile, glassware and service notes.</div>
+      <div id="ice-grid" class="ice-grid"></div>
     </section>
 
     <!-- PREP -->
@@ -1146,8 +1160,7 @@ function glassArt(name){return GLASS_ART[name]||GLASS_ART["Coupe"];}
    ============================================================ */
 const state={
   recipes:[],glassware:[],filter:"All",ffilter:null,groupBy:"none",q:"",
-  unit:"ml",preciseOz:false,theme:"dark",favs:new Set(),
-  activeIce:"block"
+  unit:"ml",preciseOz:false,theme:"dark",favs:new Set()
 };
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -1375,58 +1388,60 @@ function renderGlassware(){
     </div>`).join("");
 }
 
-/* ── Ice — large-format swipeable detail cards ───────────── */
-function renderIceSelector(){
-  const sel=$("#ice-selector");
-  sel.innerHTML=ICE_DATA.map(ic=>
-    `<button class="ice-pill ${ic.id===state.activeIce?"on":""}" data-ice="${ic.id}">${esc(ic.name)}</button>`
-  ).join("");
-}
+/* ── Ice — Zenith-X card grid ───────────────────────────── */
+const ICE_CHEVRON=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
 
-function renderIceDetail(){
-  const ic=ICE_DATA.find(x=>x.id===state.activeIce);
-  if(!ic){$("#ice-detail").innerHTML="";return;}
-  const useHtml=ic.useFor.map(u=>`<li>${esc(u)}</li>`).join("");
-  const avoidHtml=ic.avoidFor.map(u=>`<li>${esc(u)}</li>`).join("");
-  const glassHtml=ic.glassware.map(g=>`<span class="ice-chip-item">${esc(g)}</span>`).join("");
-  const drinksHtml=ic.drinks.map(d=>`<span class="ice-chip-item">${esc(d)}</span>`).join("");
-  const notesHtml=ic.notes.map(n=>`<div class="ice-note-item"><b>${esc(n.label)}</b> ${esc(n.text)}</div>`).join("");
-  const svg=ICE_SVG[ic.id]||"";
-  $("#ice-detail").innerHTML=`
-    <div class="ice-detail-card">
-      <div class="ice-big-art">${svg}</div>
-      <div class="ice-detail-body">
-        <div class="ice-name">${esc(ic.name)}</div>
-        <div class="ice-dil-badge">
-          <span class="ice-dil-label">Dilution</span>
-          <span class="ice-dil-val">${esc(ic.dilution)}</span>
+function renderIce(){
+  $("#ice-grid").innerHTML=ICE_DATA.map(ic=>{
+    const svg=ICE_SVG[ic.id]||"";
+    const useHtml=ic.useFor.map(u=>`<li>${esc(u)}</li>`).join("");
+    const avoidHtml=ic.avoidFor.map(u=>`<li>${esc(u)}</li>`).join("");
+    const glassHtml=ic.glassware.map(g=>`<span class="ic-chip">${esc(g)}</span>`).join("");
+    const drinksHtml=ic.drinks.map(d=>`<span class="ic-chip">${esc(d)}</span>`).join("");
+    const notesHtml=ic.notes.map(n=>`
+      <div class="ic-note">
+        <div class="ic-note-label">${esc(n.label)}</div>
+        <div class="ic-note-text">${esc(n.text)}</div>
+      </div>`).join("");
+    return `
+    <div class="ice-card" data-ice="${esc(ic.id)}">
+      <div class="ic-header">
+        <div class="ic-art">${svg}</div>
+        <div class="ic-info">
+          <div class="ic-name">${esc(ic.name)}</div>
+          <div class="ic-dil">
+            <span class="ic-dil-label">Dilution —</span>
+            <span class="ic-dil-val">${esc(ic.dilution)}</span>
+          </div>
         </div>
-        <div class="ice-desc">${esc(ic.description)}</div>
-        <div class="ice-section">
-          <div class="ice-section-label">Use for</div>
-          <ul class="ice-list">${useHtml}</ul>
+        <div class="ic-toggle">${ICE_CHEVRON}</div>
+      </div>
+      <div class="ic-desc">${esc(ic.description)}</div>
+      <div class="ic-body">
+        <div class="ic-section">
+          <div class="ic-section-label">Use for</div>
+          <ul class="ic-list">${useHtml}</ul>
         </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Avoid for</div>
-          <ul class="ice-list avoid">${avoidHtml}</ul>
+        <div class="ic-section">
+          <div class="ic-section-label">Avoid for</div>
+          <ul class="ic-list avoid">${avoidHtml}</ul>
         </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Compatible glassware</div>
-          <div class="ice-chips-row">${glassHtml}</div>
+        <div class="ic-section">
+          <div class="ic-section-label">Glassware</div>
+          <div class="ic-chips">${glassHtml}</div>
         </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Classic drinks</div>
-          <div class="ice-chips-row">${drinksHtml}</div>
+        <div class="ic-section">
+          <div class="ic-section-label">Classic drinks</div>
+          <div class="ic-chips">${drinksHtml}</div>
         </div>
-        <div class="ice-section">
-          <div class="ice-section-label">Service notes</div>
-          <div class="ice-notes">${notesHtml}</div>
+        <div class="ic-section">
+          <div class="ic-section-label">Service notes</div>
+          <div class="ic-notes">${notesHtml}</div>
         </div>
       </div>
     </div>`;
+  }).join("");
 }
-
-function renderIce(){renderIceSelector();renderIceDetail();}
 
 /* ── Prep / Assembly ─────────────────────────────────────── */
 function renderPrep(){
@@ -1598,15 +1613,11 @@ document.addEventListener("click",e=>{
   if(e.target.id==="precise-oz-settings"){state.preciseOz=!state.preciseOz;syncPreciseOzUI();}
 });
 
-/* Ice selector */
+/* Ice card expand/collapse */
 document.addEventListener("click",e=>{
-  const pill=e.target.closest(".ice-pill");
-  if(!pill) return;
-  state.activeIce=pill.dataset.ice;
-  renderIceSelector();renderIceDetail();
-  /* Scroll new card into view */
-  const det=$("#ice-detail");
-  if(det) det.scrollIntoView({behavior:"smooth",block:"nearest"});
+  const card=e.target.closest(".ice-card");
+  if(!card) return;
+  card.classList.toggle("open");
 });
 
 /* Search */
