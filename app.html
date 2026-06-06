@@ -190,8 +190,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16
 .fg-twist-btn:disabled{opacity:.6;cursor:default}
 .fg-credit{margin-top:16px;font-size:10.5px;color:var(--muted);opacity:.8}
 .fg-explore-head{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--muted);margin:6px 0 12px}
-.fg-explore-grid .fg-chip{font-size:13.5px;padding:7px 13px}
+  color:var(--muted);margin:6px 0 14px}
+/* Score bar rows */
+.fg-res-row{display:flex;align-items:center;gap:10px;padding:9px 0;
+  border-bottom:1px solid var(--border);cursor:pointer}
+.fg-res-row:last-of-type{border-bottom:none}
+.fg-res-row:hover .fg-res-name{color:var(--accent)}
+.fg-score-bar-wrap{flex:0 0 72px;height:4px;background:var(--border);
+  border-radius:99px;overflow:hidden}
+.fg-score-bar{height:100%;background:var(--accent-m);border-radius:99px;
+  transition:width .3s var(--ease)}
+.fg-res-name{flex:1;font-size:13.5px;color:var(--text);transition:color .15s;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fg-res-role{font-family:var(--mono);font-size:9px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);flex:0 0 auto}
+.fg-res-score{font-family:var(--mono);font-size:11px;color:var(--muted);
+  flex:0 0 20px;text-align:right}
 
 /* ── Library tabs shared ───────────────────────────────── */
 .lib-head{font-family:var(--serif);font-size:22px;font-weight:500;margin-bottom:4px}
@@ -1517,17 +1531,33 @@ async function populateFlavorGraph(r){
 /* ── FlavorGraph: standalone pairing explorer ────────────── */
 let fgExploreTimer;
 function fgExplore(term){
-  const out=$("#fg-explore");
+  const out=$(“#fg-explore”);
   if(!out) return;
-  if(!FG.enabled()){ out.innerHTML=`<div class="empty">FlavorGraph isn't connected yet.<br>See <b>flavorgraph/README</b> to switch it on.</div>`; return; }
-  if(!term||!term.trim()){ out.innerHTML=`<div class="empty">Type an ingredient to see what it pairs with.</div>`; return; }
-  out.innerHTML=`<div class="fg-hint">Searching the flavour graph…</div>`;
-  FG.pair([term],"explore",[],20).then(rows=>{
-    if(!rows||!rows.length){ out.innerHTML=`<div class="empty">Nothing found for “${esc(term)}”.<br>Try a simpler word — “lime”, not “lime cordial”.</div>`; return; }
-    out.innerHTML=`<div class="fg-explore-head">Pairs well with</div>`+
-      `<div class="fg-chips fg-explore-grid">${rows.map(x=>`<span class="fg-chip" data-fg="${esc(x.display_name)}" title="strength ${x.score}">${esc(x.display_name)}<small>${esc(x.role||"")}</small></span>`).join("")}</div>`+
-      `<div class="fg-credit">Pairings via FlavorGraph · Park et al., Scientific Reports (2021)</div>`;
-  }).catch(()=>{ out.innerHTML=`<div class="empty">Pairing service unavailable right now.</div>`; });
+  if(!FG.enabled()){ out.innerHTML=`<div class=”empty”>FlavorGraph isn't connected yet.</div>`; return; }
+  if(!term||!term.trim()){ out.innerHTML=`<div class=”fg-hint”>Type an ingredient to explore its pairings.</div>`; return; }
+  out.innerHTML=`<div class=”fg-hint”>Searching the flavour graph…</div>`;
+  FG.pair([term],”explore”,[],24).then(rows=>{
+    if(!rows||!rows.length){
+      out.innerHTML=`<div class=”empty”>Nothing found for “<b>${esc(term)}</b>”.<br>Try a simpler word — “lime”, not “lime cordial”.</div>`;
+      return;
+    }
+    /* Normalise: raw score is cosine similarity 0–1; scale to 0–100 then
+       normalise within result set so top pairing = full bar width */
+    const scored = rows.map(x=>({...x, pct: Math.round(x.score*100)}));
+    const maxPct = Math.max(...scored.map(x=>x.pct), 1);
+    out.innerHTML =
+      `<div class=”fg-explore-head”>Pairs well with ${esc(term)} — ${scored.length} results</div>`+
+      scored.map(x=>`
+        <div class=”fg-res-row” data-fg=”${esc(x.display_name)}”>
+          <div class=”fg-score-bar-wrap”>
+            <div class=”fg-score-bar” style=”width:${Math.round(x.pct/maxPct*100)}%”></div>
+          </div>
+          <span class=”fg-res-name”>${esc(x.display_name)}</span>
+          <span class=”fg-res-role”>${esc(x.role||x.category||'')}</span>
+          <span class=”fg-res-score”>${x.pct}</span>
+        </div>`).join('')+
+      `<div class=”fg-credit” style=”margin-top:14px”>Pairings via FlavorGraph · Park et al., Scientific Reports (2021)</div>`;
+  }).catch(()=>{ out.innerHTML=`<div class=”empty”>Pairing service unavailable right now.</div>`; });
 }
 
 /* ── Glassware ───────────────────────────────────────────── */
@@ -2047,11 +2077,11 @@ $("#fg-q").addEventListener("input",e=>{
   fgExploreTimer=setTimeout(()=>fgExplore(v),250);
 });
 
-/* Click any pairing chip -> open the explorer on that ingredient */
+/* Click pairing chip (recipe detail) or result row (explorer) → explore that ingredient */
 document.addEventListener("click",e=>{
-  const chip=e.target.closest(".fg-chip");
-  if(!chip||!chip.dataset.fg) return;
-  const term=chip.dataset.fg;
+  const tgt=e.target.closest(".fg-chip,.fg-res-row");
+  if(!tgt||!tgt.dataset.fg) return;
+  const term=tgt.dataset.fg;
   const box=$("#fg-q"); if(box) box.value=term;
   go("pairings");
   fgExplore(term);
